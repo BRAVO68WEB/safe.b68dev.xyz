@@ -60,7 +60,8 @@ const render = {
 }
 
 // miku: Generate an array of file names from 001.png to 050.png
-for (let i = 1; i <= 50; i++) render.configs.miku.array.push(`${('00' + i).slice(-3)}.png`)
+for (let i = 1; i <= 22; i++)
+  render.configs.miku.array.push(`${("00" + i).slice(-3)}.png`);
 
 render.showTogglePrompt = () => {
   const renderEnabled = !(localStorage[render.lsKey] === '0')

@@ -1,8 +1,8 @@
 {
-  "Name": "safe.fiery.me",
+  "Name": "safe.b68dev.xyz",
   "DestinationType": "ImageUploader, FileUploader",
   "RequestMethod": "POST",
-  "RequestURL": "https://safe.fiery.me/api/upload",
+  "RequestURL": "https://safe.b68dev.xyz/api/upload",
   "Headers": {
     "token": "",
     "albumid": "",

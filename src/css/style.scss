@@ -111,51 +111,52 @@
 /** General **/
 
 html {
-  overflow-y: auto
+  overflow-y: auto;
 }
 
 body {
-  animation: fadeInOpacity 0.5s
+  animation: fadeInOpacity 0.5s;
+  background-color: darkslateblue;
 }
 
 code,
 .message-body code {
   background-color: $black;
   border-radius: 5px;
-  font-size: 1rem
+  font-size: 1rem;
 }
 
 .input::-moz-placeholder,
 .textarea::-moz-placeholder {
-  color: $grey-lightest
+  color: $grey-lightest;
 }
 
 .input::-webkit-input-placeholder,
 .textarea::-webkit-input-placeholder {
-  color: $grey-lightest
+  color: $grey-lightest;
 }
 
 .input:-moz-placeholder,
 .textarea:-moz-placeholder {
-  color: $grey-lightest
+  color: $grey-lightest;
 }
 
 .input:-ms-input-placeholder,
 .textarea:-ms-input-placeholder {
-  color: $grey-lightest
+  color: $grey-lightest;
 }
 
 .label {
   color: $white-ter;
-  font-weight: normal
+  font-weight: normal;
 }
 
 .help {
-  color: $grey-lightest
+  color: $grey-lightest;
 }
 
 .progress {
-  background-color: $grey
+  background-color: $grey;
 }
 
 .button.is-info.is-hovered [class^="icon-"]::before,
@@ -169,7 +170,7 @@ code,
   &.is-wrappable {
     white-space: break-spaces;
     min-height: 2.25em;
-    height: auto
+    height: auto;
   }
 
   /* TODO: Use variables for colors */
