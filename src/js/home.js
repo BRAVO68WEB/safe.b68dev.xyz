@@ -164,7 +164,7 @@ page.checkIfPublic = () => {
       /* global render */
       if (typeof render !== 'undefined' && !render.done) render.do()
       /* global newsfeed */
-      if (typeof newsfeed !== 'undefined' && !newsfeed.done) newsfeed.do()
+      // if (typeof newsfeed !== 'undefined' && !newsfeed.done) newsfeed.do()
       if (!page.apiChecked) page.apiChecked = true
     }
   }).then(response => {
