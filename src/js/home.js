@@ -163,7 +163,6 @@ page.checkIfPublic = () => {
       // Only do render and/or newsfeed after this request has been initiated to avoid blocking
       /* global render */
       if (typeof render !== 'undefined' && !render.done) render.do()
-      /* global newsfeed */
       // if (typeof newsfeed !== 'undefined' && !newsfeed.done) newsfeed.do()
       if (!page.apiChecked) page.apiChecked = true
     }
