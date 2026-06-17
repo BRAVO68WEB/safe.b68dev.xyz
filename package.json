@@ -1,13 +1,13 @@
 {
   "name": "lolisafe",
-  "version": "3.0.0",
+  "version": "4.0.0",
   "description": "Blazing fast file uploader and awesome bunker written in node! 🚀",
   "repository": {
     "type": "git",
-    "url": "https://github.com/BobbyWibowo/lolisafe"
+    "url": "https://github.com/BRAVO68WEB/safe.b68dev.xyz"
   },
   "bugs": {
-    "url": "https://github.com/BobbyWibowo/lolisafe/issues"
+    "url": "https://github.com/BRAVO68WEB/safe.b68dev.xyz/issues"
   },
   "engines": {
     "node": ">=18.17.0"

@@ -1,10 +1,10 @@
 # lolisafe, a small safe worth protecting
 
-[![safe.fiery.me](https://i.fiery.me/upN1Q.png)](https://safe.fiery.me)
+[![safe.b68dev.xyz](https://safe.b68dev.xyz/A9RkivWU.png)](https://safe.b68dev.xyz)
 
-> This is a fork of [lolisafe](https://github.com/WeebDev/lolisafe) by [WeebDev](https://github.com/WeebDev). Maintained by [bravo68web](https://github.com/bravo68web).
+> This is a fork of [lolisafe](https://github.com/BobbyWibowo/lolisafe) by [WeebDev](https://github.com/BobbyWibowo). Maintained by [bravo68web](https://github.com/bravo68web), containing additional features and improvements over the original lolisafe, including TS Upgrade, additional security features and minor bug fixes.
 
-[![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](https://raw.githubusercontent.com/WeebDev/lolisafe/master/LICENSE)
+[![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](https://raw.githubusercontent.com/BobbyWibowo/lolisafe/master/LICENSE)
 
 [![JavaScript Style Guide](https://cdn.rawgit.com/standard/standard/master/badge.svg)](https://github.com/standard/standard)
 
@@ -35,7 +35,7 @@
 
 This fork is the one being used at [https://safe.fiery.me](https://safe.fiery.me).
 
-It was originally based on [WeebDev/lolisafe](https://github.com/WeebDev/lolisafe) v3, but later have been so heavily rewritten that it is now simply its own thing.
+It was originally based on [BobbyWibowo/lolisafe](https://github.com/BobbyWibowo/lolisafe) v3, but later have been so heavily rewritten that it is now simply its own thing.
 
 Chibisafe is an upstream rewrite & rebrand, and technically is lolisafe v4.
 
