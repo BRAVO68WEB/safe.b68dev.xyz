@@ -20,11 +20,9 @@
 <script src="libs/axios/axios.min.js{{ versions[3] }}"></script>
 <script src="libs/clipboard.js/clipboard.min.js{{ versions[3] }}"></script>
 <script src="libs/lazyload/lazyload.min.js{{ versions[3] }}"></script>
-{# Polyfill smooth scroll for older browsers #}
 <script src="libs/smoothscroll/smoothscroll.min.js{{ versions[3] }}"></script>
 <script src="libs/bulma-collapsible/bulma-collapsible.min.js{{ versions[3] }}"></script>
 <!-- Scripts -->
-{# We assign an ID for this so that the script can find out its own version #}
 <script id="mainScript" src="js/dashboard.js{{ versions[1] }}"></script>
 <script src="js/misc/utils.js{{ versions[1] }}"></script>
 {% endblock %}
@@ -43,11 +41,11 @@
     <p class="subtitle">
       A simple <strong>dashboard</strong>, to sort your uploaded stuff
     </p>
-    <hr>
+    <hr class="divider">
 
     <div class="columns">
       <div class="column is-one-quarter">
-        <aside id="menu" class="menu">
+        <aside id="menu" class="menu surface" style="padding: 1rem; position: sticky; top: 1rem">
           <p class="menu-label">General</p>
           <ul class="menu-list is-unselectable">
             <li>
@@ -104,7 +102,7 @@
           </ul>
         </aside>
       </div>
-      <div id="page" class="column has-text-centered is-third-quarters">
+      <div id="page" class="column has-text-centered is-three-quarters">
         <img alt="logo" src="images/logo.png{{ versions[2] }}">
       </div>
     </div>

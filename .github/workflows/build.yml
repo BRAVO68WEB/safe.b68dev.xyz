@@ -11,7 +11,7 @@ on:
       - 'src/versions.json'
 
 env:
-  NODE_VERSION: 18
+  NODE_VERSION: 20
 
 jobs:
   build:
@@ -25,22 +25,27 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
 
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 9.15.4
+
       - name: Cache node_modules
         uses: actions/cache@v4
         id: cache-nodemodules
         with:
           path: node_modules
-          key: ${{ runner.os }}-${{ env.NODE_VERSION }}-nodemodules-${{ hashFiles('**/yarn.lock') }}
+          key: ${{ runner.os }}-${{ env.NODE_VERSION }}-nodemodules-${{ hashFiles('**/pnpm-lock.yaml') }}
 
       - name: Install dependencies
         if: steps.cache-nodemodules.outputs.cache-hit != 'true'
-        run: yarn install --frozen-lockfile --non-interactive
+        run: pnpm install --frozen-lockfile
 
       - name: Update browserslist/caniuse-lite
         run: npx browserslist@latest --update-db
 
-      - name: yarn build
-        run: yarn build
+      - name: Build
+        run: pnpm build
 
       - uses: stefanzweifel/git-auto-commit-action@v5
         with:

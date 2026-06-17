@@ -3,8 +3,17 @@
 
 /** Main **/
 
+.description {
+  color: $text-muted;
+  font-size: 0.9rem
+}
+
 @media screen and (width <= 768px) {
   .description {
     text-align: center
   }
+}
+
+.bento-grid {
+  margin-top: 1rem
 }

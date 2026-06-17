@@ -1,0 +1,17 @@
+{
+  "Version": "13.4.0",
+  "Name": "safe.b68dev.xyz",
+  "DestinationType": "ImageUploader, FileUploader",
+  "RequestMethod": "POST",
+  "RequestURL": "https://safe.b68dev.xyz/api/upload",
+  "Headers": {
+    "token": "",
+    "albumid": "",
+    "filelength": "",
+    "age": ""
+  },
+  "Body": "MultipartFormData",
+  "FileFormName": "files[]",
+  "URL": "$json:files[0].url$",
+  "ThumbnailURL": "$json:files[0].url$"
+}

@@ -330,3 +330,122 @@ a.floating-home-button {
     }
   }
 }
+
+/** Bento Grid **/
+
+.bento-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 12px;
+  grid-auto-flow: dense;
+
+  &.is-centered {
+    justify-items: center
+  }
+}
+
+.bento-card {
+  background-color: $bg-surface;
+  border: 1px solid $border-subtle;
+  border-radius: $radius-md;
+  overflow: hidden;
+  transition: border-color $transition-fast, box-shadow $transition-fast;
+
+  &:hover {
+    border-color: $border-default;
+    box-shadow: $shadow-md
+  }
+
+  &.is-clickable {
+    cursor: pointer
+  }
+}
+
+/** Surface / Card Styles **/
+
+.surface {
+  background-color: $bg-surface;
+  border: 1px solid $border-subtle;
+  border-radius: $radius-md
+}
+
+.surface-hover {
+  transition: background-color $transition-fast, border-color $transition-fast;
+
+  &:hover {
+    background-color: $bg-surface-hover;
+    border-color: $border-default
+  }
+}
+
+/** Modern Input Styles **/
+
+.input,
+.textarea,
+.select select {
+  background-color: $input-background-color;
+  border-color: $input-border-color;
+  color: $input-color;
+  border-radius: $radius-sm;
+  transition: border-color $transition-fast, box-shadow $transition-fast;
+
+  &:focus {
+    border-color: $accent;
+    box-shadow: 0 0 0 2px rgba($accent, 0.15)
+  }
+}
+
+/** Modern Button Styles **/
+
+.button {
+  border-radius: $radius-sm;
+  transition: background-color $transition-fast, border-color $transition-fast, box-shadow $transition-fast;
+
+  &.is-primary {
+    background-color: $accent;
+    border-color: transparent;
+    color: $white;
+
+    &:hover {
+      background-color: $accent-hover;
+      border-color: transparent
+    }
+  }
+
+  &.is-ghost {
+    background-color: transparent;
+    border-color: transparent;
+    color: $text-muted;
+
+    &:hover {
+      background-color: $bg-surface-hover;
+      color: $text
+    }
+  }
+}
+
+/** Badge / Tag **/
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  border-radius: 9999px;
+  background-color: $bg-surface-hover;
+  color: $text-muted;
+
+  &.is-accent {
+    background-color: rgba($accent, 0.15);
+    color: $accent
+  }
+}
+
+/** Divider **/
+
+.divider {
+  border: none;
+  border-top: 1px solid $border-subtle;
+  margin: 1rem 0
+}

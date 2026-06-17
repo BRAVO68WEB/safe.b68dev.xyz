@@ -4,16 +4,16 @@
 /** Main **/
 
 #b {
-  width: 200px;
-  height: 200px;
+  width: 160px;
+  height: 160px;
   border-radius: 100%;
   display: inline-block;
-  margin-bottom: 40px;
+  margin-bottom: 24px;
   vertical-align: top
 }
 
 .logo {
-  max-height: 200px;
+  max-height: 160px;
 
   &.is-2x {
     display: none
@@ -29,7 +29,20 @@
 }
 
 #maxSize {
-  font-size: 1rem
+  font-size: 0.9rem
+}
+
+.dz-container {
+  border: 2px dashed $border-default;
+  border-radius: $radius-md;
+  padding: 2rem 1rem;
+  transition: border-color $transition-fast, background-color $transition-fast;
+  cursor: pointer;
+
+  &:hover {
+    border-color: $accent;
+    background-color: rgba($accent, 0.05)
+  }
 }
 
 .dz-preview {
@@ -58,14 +71,18 @@
   }
 
   > div {
-    margin: 0.75rem !important;
+    margin: 0.5rem 0 !important;
+    background-color: $bg-surface;
+    border: 1px solid $border-subtle;
+    border-radius: $radius-sm;
+    padding: 0.75rem;
 
     &:first-child {
-      margin-top: 1.5rem
+      margin-top: 1rem
     }
 
     > .icon:not(.icon-block) {
-      color: $blue
+      color: $accent
     }
 
     > .icon.icon-block {
@@ -82,17 +99,18 @@
   }
 
   .descriptive-progress {
-    color: $grey-lightest
+    color: $text-muted
   }
 
   img {
-    max-width: 200px
+    max-width: 150px;
+    border-radius: $radius-sm
   }
 }
 
 .name {
-  font-size: 1rem;
-  color: $white-ter;
+  font-size: 0.9rem;
+  color: $text;
   word-break: break-all
 }
 
@@ -109,9 +127,7 @@
 }
 
 #linksColumn {
-  margin-top: -0.25rem;
-  margin-left: -0.25rem;
-  margin-right: -0.25rem;
+  margin-top: 0.5rem;
 
   .column {
     padding: 0.25rem
@@ -125,7 +141,13 @@
 
 .git-commit a {
   display: inline-block;
-  word-break: break-all
+  word-break: break-all;
+  color: $text-muted;
+  font-size: 0.8rem;
+
+  &:hover {
+    color: $accent
+  }
 }
 
 .hero .tabs ul {
@@ -133,7 +155,7 @@
 }
 
 #tabs {
-  margin-bottom: 1rem;
+  margin-bottom: 0.75rem;
 
   .tab-content {
     margin-bottom: -0.75rem
@@ -193,6 +215,9 @@ input[type="file"].is-fullwidth {
     display: block;
     padding: 0.75rem 2.25rem 0.75rem 1.125rem;
     margin-bottom: 1.125rem;
+    background-color: $bg-surface;
+    border: 1px solid $border-subtle;
+    border-radius: $radius-sm;
 
     > .delete {
       top: 0.75rem

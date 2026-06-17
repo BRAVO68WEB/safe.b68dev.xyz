@@ -1,0 +1,173 @@
+{% set metaTitle = "Temporary Upload" %}
+{% set metaUrl = '/temp' %}
+
+{% extends "_layout.njk" %}
+
+{% block stylesheets %}
+<link rel="stylesheet" href="libs/fontello/fontello.css{{ versions[1] }}">
+{{ super() }}
+<link rel="stylesheet" href="css/sweetalert.css{{ versions[1] }}">
+<link rel="stylesheet" href="css/home.css{{ versions[1] }}">
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script src="libs/sweetalert/sweetalert.min.js{{ versions[3] }}"></script>
+<script src="libs/axios/axios.min.js{{ versions[3] }}"></script>
+<script src="libs/clipboard.js/clipboard.min.js{{ versions[3] }}"></script>
+<script>
+(function() {
+  var maxSize = {{ maxSize }};
+  var retentionHours = {{ retentionHours }};
+
+  var dropzone = document.getElementById('dropzone');
+  var fileInput = document.getElementById('fileInput');
+  var result = document.getElementById('result');
+  var progress = document.getElementById('progress');
+  var linkSection = document.getElementById('linkSection');
+  var fileUrl = document.getElementById('fileUrl');
+  var expiryInfo = document.getElementById('expiryInfo');
+  var errorSection = document.getElementById('errorSection');
+  var errorMsg = document.getElementById('errorMsg');
+  var uploadBtn = document.getElementById('uploadBtn');
+
+  function resetUI() {
+    result.classList.add('is-hidden');
+    progress.classList.add('is-hidden');
+    linkSection.classList.add('is-hidden');
+    errorSection.classList.add('is-hidden');
+  }
+
+  function showProgress(pct) {
+    progress.classList.remove('is-hidden');
+    progress.querySelector('progress').value = pct;
+  }
+
+  function showResult(url, expiresAt) {
+    linkSection.classList.remove('is-hidden');
+    fileUrl.value = url;
+    var remaining = Math.max(0, expiresAt - Math.floor(Date.now() / 1000));
+    var hours = Math.floor(remaining / 3600);
+    var mins = Math.floor((remaining % 3600) / 60);
+    expiryInfo.textContent = 'Expires in ' + hours + 'h ' + mins + 'm';
+  }
+
+  function showError(msg) {
+    errorSection.classList.remove('is-hidden');
+    errorMsg.textContent = msg;
+  }
+
+  function uploadFile(file) {
+    if (file.size > maxSize * 1e6) {
+      showError('File too large. Maximum size is ' + maxSize + ' MB.');
+      return;
+    }
+
+    resetUI();
+    result.classList.remove('is-hidden');
+    showProgress(0);
+
+    var formData = new FormData();
+    formData.append('files[]', file);
+
+    axios.post('/api/temp/upload', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+      onUploadProgress: function(e) {
+        if (e.lengthComputable) {
+          showProgress(Math.round((e.loaded / e.total) * 100));
+        }
+      }
+    }).then(function(res) {
+      if (res.data.success && res.data.files && res.data.files.length) {
+        showResult(res.data.files[0].url, res.data.files[0].expiresAt);
+      } else {
+        showError(res.data.description || 'Upload failed.');
+      }
+    }).catch(function(err) {
+      var msg = 'Upload failed.';
+      if (err.response && err.response.data && err.response.data.description) {
+        msg = err.response.data.description;
+      }
+      showError(msg);
+    });
+  }
+
+  dropzone.addEventListener('click', function() { fileInput.click(); });
+  dropzone.addEventListener('dragover', function(e) { e.preventDefault(); dropzone.style.borderColor = '#3b82f6'; });
+  dropzone.addEventListener('dragleave', function() { dropzone.style.borderColor = ''; });
+  dropzone.addEventListener('drop', function(e) {
+    e.preventDefault();
+    dropzone.style.borderColor = '';
+    if (e.dataTransfer.files.length) uploadFile(e.dataTransfer.files[0]);
+  });
+  fileInput.addEventListener('change', function() {
+    if (fileInput.files.length) uploadFile(fileInput.files[0]);
+  });
+
+  uploadBtn.addEventListener('click', function() {
+    if (fileInput.files.length) uploadFile(fileInput.files[0]);
+  });
+
+  // Clipboard
+  var copyBtn = document.getElementById('copyBtn');
+  if (copyBtn) {
+    copyBtn.addEventListener('click', function() {
+      fileUrl.select();
+      document.execCommand('copy');
+      copyBtn.textContent = 'Copied!';
+      setTimeout(function() { copyBtn.textContent = 'Copy'; }, 2000);
+    });
+  }
+})();
+</script>
+{% endblock %}
+
+{% block content %}
+{{ super() }}
+<section class="hero is-fullheight">
+  <div class="hero-body">
+    <div class="container has-text-centered" style="max-width: 500px">
+      <h1 class="title">Temporary Upload</h1>
+      <p class="subtitle" style="font-size: 0.9rem; margin-bottom: 1.5rem">
+        Upload a file temporarily. No account required.<br>
+        Max {{ maxSize }} MB. Files expire after {{ retentionHours }} hours.
+      </p>
+
+      <div id="dropzone" class="dz-container" style="cursor: pointer; margin-bottom: 1rem">
+        <input type="file" id="fileInput" style="display: none">
+        <p style="color: #9ca3af; margin: 0">
+          <span class="icon" style="font-size: 2rem"><i class="icon-upload-cloud"></i></span><br>
+          Drop a file here or click to select
+        </p>
+      </div>
+
+      <div id="result" class="is-hidden">
+        <div id="progress" class="is-hidden" style="margin-bottom: 1rem">
+          <progress class="progress is-primary" value="0" max="100"></progress>
+        </div>
+
+        <div id="linkSection" class="is-hidden surface" style="padding: 1rem; text-align: left">
+          <label class="label" style="font-size: 0.8rem; margin-bottom: 0.5rem">File link</label>
+          <div class="field has-addons">
+            <div class="control is-expanded">
+              <input id="fileUrl" class="input" type="text" readonly>
+            </div>
+            <div class="control">
+              <button id="copyBtn" class="button is-primary">Copy</button>
+            </div>
+          </div>
+          <p id="expiryInfo" class="help" style="margin-top: 0.5rem"></p>
+        </div>
+
+        <div id="errorSection" class="is-hidden" style="margin-top: 1rem">
+          <p id="errorMsg" class="has-text-danger"></p>
+        </div>
+      </div>
+
+      <div style="margin-top: 1.5rem">
+        <a href="/" class="button is-ghost" style="font-size: 0.9rem">Back to home</a>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,30 @@
+FROM node:20-bookworm
+
+WORKDIR /usr/lolisafe
+
+# Install pnpm
+RUN corepack enable && corepack prepare pnpm@9.15.4 --activate
+
+# Install system dependencies
+RUN apt-get update && \
+    apt-get install -y python3 make g++ git ffmpeg && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Copy dependency files first for layer caching
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+
+# Install all dependencies (including dev)
+RUN pnpm install
+
+# Copy source code
+COPY . .
+
+# Create required directories
+RUN mkdir -p uploads uploads/thumbs uploads/zips uploads/chunks database
+
+# Build frontend assets with Gulp (skip lint)
+RUN npx gulp build
+
+EXPOSE 9999
+
+CMD ["npx", "tsx", "./lolisafe.ts"]

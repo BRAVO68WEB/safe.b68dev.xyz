@@ -8,24 +8,35 @@ body {
 }
 
 .menu-label {
-  color: $grey-light
+  color: $text-muted;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-top: 1rem;
+
+  &:first-child {
+    margin-top: 0
+  }
 }
 
 .menu-list {
   a {
     color: $link;
     border: 1px solid transparent;
+    border-radius: $radius-sm;
+    padding: 0.5em 0.75em;
+    transition: background-color $transition-fast, border-color $transition-fast;
 
     &.is-active {
       color: $white;
-      background: $link;
-      border-color: $link
+      background: $accent;
+      border-color: $accent
     }
 
     &:not(.is-active):hover {
       color: $link;
-      background: none;
-      border-color: $link
+      background: $bg-surface-hover;
+      border-color: $border-subtle
     }
 
     &[disabled] {
@@ -64,7 +75,7 @@ body {
     padding-left: 0;
 
     li {
-      border-left: 2px solid $grey-light;
+      border-left: 2px solid $border-subtle;
       padding-left: 0.75em
     }
   }
@@ -78,10 +89,12 @@ body {
 .pagination-next,
 .pagination-link {
   &:not([disabled]) {
-    background-color: $pagination-background-color;
+    background-color: $bg-surface;
+    border-color: $border-subtle;
 
     &:hover {
-      background-color: $pagination-hover-background-color
+      background-color: $bg-surface-hover;
+      border-color: $border-default
     }
   }
 
@@ -91,9 +104,9 @@ body {
 }
 
 .pagination-link.is-current {
-  color: $pagination-background-color;
-  background-color: $pagination-color;
-  border-color: $pagination-border-color;
+  color: $white;
+  background-color: $accent;
+  border-color: $accent;
 
   &.is-loading::after {
     border-bottom-color: $grey-dark;
@@ -110,7 +123,6 @@ li[data-action="page-ellipsis"] {
 }
 
 #page {
-  /* fix overflow issue with flex */
   min-width: 0
 }
 
@@ -148,10 +160,14 @@ li[data-action="page-ellipsis"] {
 }
 
 .expirydate {
-  color: $grey-lightest
+  color: $text-muted
 }
 
 .table {
+  background-color: $bg-surface;
+  border-radius: $radius-sm;
+  overflow: hidden;
+
   .originalname {
     max-width: 200px;
     text-overflow: ellipsis;
@@ -194,11 +210,11 @@ li[data-action="page-ellipsis"] {
     right: 11px;
 
     .button {
-      border-radius: 0;
+      border-radius: $radius-sm;
 
       &:not(:active,:hover) {
         color: $white;
-        background-color: rgb(0 0 0 / 56%)
+        background-color: rgba(0, 0, 0, 0.56)
       }
     }
   }
@@ -220,5 +236,32 @@ li[data-action="page-ellipsis"] {
     .details {
       opacity: 1
     }
+  }
+}
+
+/** Sidebar modernization **/
+
+#menu {
+  .menu-list a {
+    font-size: 0.9rem
+  }
+}
+
+/** Page content area **/
+
+#page {
+  background-color: $bg-surface;
+  border: 1px solid $border-subtle;
+  border-radius: $radius-md;
+  padding: 1.5rem;
+  min-height: 400px
+}
+
+/** Bulk operations bar **/
+
+.bulk-operations,
+.exclusive-operations {
+  .button {
+    font-size: 0.8rem
   }
 }

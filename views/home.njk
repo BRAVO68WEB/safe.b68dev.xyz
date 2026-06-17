@@ -33,13 +33,11 @@
 {%- endif %}
 <!-- Scripts -->
 {% if globals.enable_home_renders -%}
-{# We assign an ID for this so that the script can find out version string for render images #}
 <script id="renderScript" data-config="{{ globals.enable_home_renders }}" data-version="{{ versions[4] }}" src="js/misc/render.js{{ versions[1] }}" async></script>
 {%- endif %}
 {% if globals.enable_home_newsfeed -%}
 <script src="js/misc/newsfeed.js{{ versions[1] }}" async></script>
 {%- endif %}
-{# We assign an ID for this so that the script can find out its own version #}
 <script id="mainScript" src="js/home.js{{ versions[1] }}"></script>
 <script src="js/misc/utils.js{{ versions[1] }}"></script>
 {% endblock %}
@@ -52,109 +50,103 @@
 {{ super() }}
 <section id="home" class="hero is-fullheight">
   <div class="hero-body">
-    <div class="container has-text-centered">
+    <div class="container has-text-centered" style="max-width: 640px">
       <p id="b" class="is-relative">
-        <img class="logo is-hidden-mobile" alt="logo" src="images/logo_smol.png{{ versions[2] }}">
-        <img class="logo is-2x is-block-mobile" alt="logo" src="images/logo_smol@2x.png{{ versions[2] }}">
+        <img class="logo is-hidden-mobile" alt="logo" src="icons/512pxr.png{{ versions[2] }}">
+        <img class="logo is-2x is-block-mobile" alt="logo" src="icons/600pxr.png{{ versions[2] }}">
       </p>
       <h1 class="title">{{ globals.name }}</h1>
       <h2 class="subtitle">{{ globals.home_subtitle | safe }}</h2>
 
-      <p id="maxSize" class="subtitle">
+      <p id="maxSize" class="subtitle" style="font-size: 0.9rem; margin-bottom: 1.5rem">
         Maximum upload size per file is <span>{{ maxSizeInt }} MB</span>
       </p>
 
-      <div class="columns is-gapless">
-        <div class="column is-hidden-mobile"></div>
-        <div class="column">
-          <a id="loginToUpload" class="button is-danger is-outlined is-fullwidth is-loading is-wrappable"></a>
-          <div id="albumDiv" class="field has-addons is-hidden anim-fade-in">
-            <div class="control is-expanded">
-              <div class="select is-fullwidth">
-                <select id="albumSelect">
-                  <option value="" selected>Upload to album</option>
-                </select>
-              </div>
-            </div>
-            <div class="control">
-              <a id="createAlbum" class="button is-info is-outlined" title="Create new album">
-                <i class="icon-plus"></i>
-              </a>
-            </div>
+      <a id="loginToUpload" class="button is-danger is-outlined is-fullwidth is-loading is-wrappable"></a>
+      <div id="albumDiv" class="field has-addons is-hidden anim-fade-in" style="margin-bottom: 0.75rem">
+        <div class="control is-expanded">
+          <div class="select is-fullwidth">
+            <select id="albumSelect">
+              <option value="" selected>Upload to album</option>
+            </select>
           </div>
-          <div id="tabs" class="tabs is-centered is-boxed is-hidden">
-            <ul>
-              <li data-id="tab-files" class="is-active">
-                <a>
-                  <span class="icon is-small"><i class="icon-docs"></i></span>
-                  <span>Files</span>
-                </a>
-              </li>
-              {% if urlMaxSizeInt -%}
-              <li data-id="tab-urls">
-                <a>
-                  <span class="icon is-small"><i class="icon-link"></i></span>
-                  <span>URLs</span>
-                </a>
-              </li>
-              {%- endif %}
-              <li data-id="tab-config">
-                <a>
-                  <span class="icon is-small"><i class="icon-cog-alt"></i></span>
-                  <span>Config</span>
-                </a>
-              </li>
-            </ul>
-          </div>
-          <div id="tab-files" class="tab-content is-hidden">
-            <div class="field dz-container"></div>
-            <div class="field uploads"></div>
-          </div>
-          {% if urlMaxSizeInt -%}
-          <div id="tab-urls" class="tab-content is-hidden">
-            <div class="field">
-              <div class="control">
-                <textarea id="urls" class="textarea" rows="2"></textarea>
-              </div>
-              <p class="help">
-                {% if urlMaxSizeInt !== maxSizeInt -%}
-                Maximum file size per URL is <span id="urlMaxSize">{{ urlMaxSizeInt }} MB</span>.
-                {{- ' ' }}{% endif -%}
-
-                {% if urlExtensionsFilterEnabled -%}
-                  {% if urlExtensionsFilterMode === 'blacklist' -%}
-                  Blacklist:
-                  {%- elif urlExtensionsFilterMode === 'whitelist' -%}
-                  Whitelist:
-                  {%- endif %}{{ ' ' -}}
-                  {% set comma = joiner(', ') %}
-                  {%- for extension in urlExtensionsFilter -%}
-                  {{ comma() }}{{ extension | replace('.', '', 1) | upper }}
-                  {%- endfor %}.
-                {{- ' ' }}{% endif -%}
-
-                {%- if urlDisclaimerMessage -%}
-                {{ urlDisclaimerMessage | safe }}
-                {%- endif %}
-              </p>
-            </div>
-            <div class="field">
-              <div class="control">
-                <a id="uploadUrls" class="button is-danger is-outlined is-fullwidth is-unselectable">
-                  <span class="icon">
-                    <i class="icon-upload-cloud"></i>
-                  </span>
-                  <span>Upload URLs</span>
-                </a>
-              </div>
-            </div>
-            <div class="field uploads"></div>
-          </div>
-          {%- endif %}
-          <div id="tab-config" class="tab-content is-hidden"></div>
         </div>
-        <div class="column is-hidden-mobile"></div>
+        <div class="control">
+          <a id="createAlbum" class="button is-info is-outlined" title="Create new album">
+            <i class="icon-plus"></i>
+          </a>
+        </div>
       </div>
+      <div id="tabs" class="tabs is-centered is-boxed is-hidden" style="margin-bottom: 0.75rem">
+        <ul>
+          <li data-id="tab-files" class="is-active">
+            <a>
+              <span class="icon is-small"><i class="icon-docs"></i></span>
+              <span>Files</span>
+            </a>
+          </li>
+          {% if urlMaxSizeInt -%}
+          <li data-id="tab-urls">
+            <a>
+              <span class="icon is-small"><i class="icon-link"></i></span>
+              <span>URLs</span>
+            </a>
+          </li>
+          {%- endif %}
+          <li data-id="tab-config">
+            <a>
+              <span class="icon is-small"><i class="icon-cog-alt"></i></span>
+              <span>Config</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+      <div id="tab-files" class="tab-content is-hidden">
+        <div class="field dz-container"></div>
+        <div class="field uploads"></div>
+      </div>
+      {% if urlMaxSizeInt -%}
+      <div id="tab-urls" class="tab-content is-hidden">
+        <div class="field">
+          <div class="control">
+            <textarea id="urls" class="textarea" rows="2"></textarea>
+          </div>
+          <p class="help">
+            {% if urlMaxSizeInt !== maxSizeInt -%}
+            Maximum file size per URL is <span id="urlMaxSize">{{ urlMaxSizeInt }} MB</span>.
+            {{- ' ' }}{% endif -%}
+
+            {% if urlExtensionsFilterEnabled -%}
+              {% if urlExtensionsFilterMode === 'blacklist' -%}
+              Blacklist:
+              {%- elif urlExtensionsFilterMode === 'whitelist' -%}
+              Whitelist:
+              {%- endif %}{{ ' ' -}}
+              {% set comma = joiner(', ') %}
+              {%- for extension in urlExtensionsFilter -%}
+              {{ comma() }}{{ extension | replace('.', '', 1) | upper }}
+              {%- endfor %}.
+            {{- ' ' }}{% endif -%}
+
+            {%- if urlDisclaimerMessage -%}
+            {{ urlDisclaimerMessage | safe }}
+            {%- endif %}
+          </p>
+        </div>
+        <div class="field">
+          <div class="control">
+            <a id="uploadUrls" class="button is-danger is-outlined is-fullwidth is-unselectable">
+              <span class="icon">
+                <i class="icon-upload-cloud"></i>
+              </span>
+              <span>Upload URLs</span>
+            </a>
+          </div>
+        </div>
+        <div class="field uploads"></div>
+      </div>
+      {%- endif %}
+      <div id="tab-config" class="tab-content is-hidden"></div>
 
       <div id="tpl" class="is-hidden">
         <div class="field anim-fade-in">
@@ -178,19 +170,17 @@
         </div>
       </div>
 
-      <h3 class="subtitle">
-        <a href="auth" id="loginLinkText"></a>
-      </h3>
+      <div style="margin-top: 1.5rem">
+        <h3 class="subtitle">
+          <a href="auth" id="loginLinkText"></a>
+        </h3>
+      </div>
 
       {% include "_partial/links.njk" %}
 
       {% if utils.gitHash -%}
-      <div class="git-commit columns is-gapless">
-        <div class="column is-hidden-mobile"></div>
-        <div class="column">
-          <span>Git commit: </span><a href="https://github.com/BobbyWibowo/lolisafe/commit/{{ utils.gitHash }}" target="_blank" rel="noopener">{{ utils.gitHash }}</a>
-        </div>
-        <div class="column is-hidden-mobile"></div>
+      <div class="git-commit" style="margin-top: 1rem">
+        <span style="color: $grey-light">Git commit: </span><a href="https://github.com/BobbyWibowo/lolisafe/commit/{{ utils.gitHash }}" target="_blank" rel="noopener">{{ utils.gitHash }}</a>
       </div>
       {%- endif %}
     </div>

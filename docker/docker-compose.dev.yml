@@ -1,0 +1,32 @@
+services:
+  lolisafe:
+    build:
+      context: ../
+      dockerfile: ./docker/lolisafe/Dockerfile.dev
+    ports:
+      - "9999:9999"
+    volumes:
+      # Named volumes for persistent data only
+      - lolisafe-uploads:/usr/lolisafe/uploads
+      - lolisafe-database:/usr/lolisafe/database
+    environment:
+      NODE_ENV: production
+      PORT: 9999
+    restart: unless-stopped
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "8080:80"
+    volumes:
+      - ../docker/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ../docker/nginx/dev.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - lolisafe
+    restart: unless-stopped
+
+volumes:
+  lolisafe-uploads:
+    name: "lolisafe-uploads"
+  lolisafe-database:
+    name: "lolisafe-database"

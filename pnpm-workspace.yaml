@@ -1,0 +1,11 @@
+packages:
+  - '.'
+
+onlyBuiltDependencies:
+  - '@parcel/watcher'
+  - bcrypt
+  - better-sqlite3
+  - blake3
+  - es5-ext
+  - fsevents
+  - sharp

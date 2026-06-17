@@ -14,29 +14,35 @@
   },
   "license": "MIT",
   "scripts": {
-    "start": "cross-env NODE_ENV=production node ./lolisafe.js",
+    "start": "cross-env NODE_ENV=production tsx ./lolisafe.ts",
     "start:reload": "cross-env NODE_ENV=production gulp watch",
-    "pm2": "cross-env NODE_ENV=production pm2 start ./lolisafe.js",
+    "pm2": "cross-env NODE_ENV=production pm2 start ./lolisafe.ts --interpreter tsx",
     "lint": "gulp lint",
     "build": "gulp default",
-    "dev": "cross-env NODE_ENV=development gulp build-dev && cross-env NODE_ENV=development node ./lolisafe.js",
+    "dev": "cross-env NODE_ENV=development gulp build-dev && cross-env NODE_ENV=development tsx ./lolisafe.ts",
     "dev:reload": "cross-env NODE_ENV=development gulp watch",
-    "migrate": "node ./scripts/migrate.js",
+    "migrate": "knex migrate:latest",
+    "migrate:make": "knex migrate:make",
+    "migrate:rollback": "knex migrate:rollback",
+    "migrate:legacy": "node ./scripts/migrate.js",
     "bump-versions": "node ./scripts/bump-versions.js",
     "cf-purge": "node ./scripts/cf-purge.js",
     "clean-up": "node ./scripts/clean-up.js",
     "delete-expired": "node ./scripts/delete-expired.js",
     "rebuild-hashes": "node ./scripts/rebuild-hashes.js",
     "thumbs": "node ./scripts/thumbs.js",
-    "pull": "git pull && cross-env NODE_ENV=production yarn",
+    "typecheck": "tsc --noEmit",
+    "docker:dev": "docker compose -f docker/docker-compose.dev.yml up --build",
+    "docker:dev:stop": "docker compose -f docker/docker-compose.dev.yml down",
+    "pull": "git pull && cross-env NODE_ENV=production pnpm install",
     "stash": "git stash || true",
     "stash-pop": "git stash pop || true",
-    "rebuild-dependencies": "rm -f ./yarn.lock && yarn"
+    "rebuild-dependencies": "rm -f ./pnpm-lock.yaml && pnpm install"
   },
   "dependencies": {
     "abort-controller": "~3.0.0",
     "bcrypt": "~5.1.1",
-    "better-sqlite3": "~9.4.3",
+    "better-sqlite3": "^12.8.0",
     "blake3": "~2.1.7",
     "chokidar": "~3.6.0",
     "clamscan": "~2.1.2",
@@ -65,6 +71,7 @@
   },
   "devDependencies": {
     "@ronilaukkarinen/gulp-stylelint": "~14.1.2",
+    "@types/node": "^25.9.3",
     "browserslist": "~4.23.0",
     "bulma": "~0.9.4",
     "cssnano": "~6.0.5",
@@ -88,10 +95,11 @@
     "postcss": "~8.4.35",
     "postcss-preset-env": "~9.4.0",
     "stylelint": "~15.11.0",
-    "stylelint-config-standard-scss": "~11.1.0"
+    "stylelint-config-standard-scss": "~11.1.0",
+    "tsx": "^4.22.4",
+    "typescript": "^6.0.3"
   },
   "volta": {
-    "node": "20.11.1",
-    "yarn": "1.22.21"
+    "node": "20.11.1"
   }
 }

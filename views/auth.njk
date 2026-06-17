@@ -29,52 +29,48 @@
 {{ super() }}
 <section id="login" class="hero is-fullheight is-hidden">
   <div class="hero-body">
-    <div class="container">
-      <div class="columns is-centered">
-        <div class="column is-one-third is-hidden-touch"></div>
-        <div class="column">
-          <h1 class="title">
-            Dashboard Access
-          </h1>
-          {% if enableUserAccounts -%}
-          <h2 class="subtitle">
-            Login or register
-          </h2>
-          {%- endif %}
-          <form id="authForm">
-            <div class="field">
-              <div class="control">
-                <input id="user" name="user" class="input" type="text" placeholder="Username" minlength="4" maxlength="32">
-              </div>
+    <div class="container" style="max-width: 420px">
+      <div class="surface" style="padding: 2rem">
+        <h1 class="title" style="margin-bottom: 0.5rem">
+          Dashboard Access
+        </h1>
+        {% if enableUserAccounts -%}
+        <h2 class="subtitle" style="margin-bottom: 1.5rem">
+          Login or register
+        </h2>
+        {%- endif %}
+        <form id="authForm">
+          <div class="field">
+            <div class="control">
+              <input id="user" name="user" class="input" type="text" placeholder="Username" minlength="4" maxlength="32">
             </div>
-            <div class="field">
-              <div class="control">
-                <input id="pass" name="pass" class="input" type="password" placeholder="Password" minlength="6" maxlength="64">
-              </div>
+          </div>
+          <div class="field">
+            <div class="control">
+              <input id="pass" name="pass" class="input" type="password" placeholder="Password" minlength="6" maxlength="64">
             </div>
-            <div class="field is-grouped is-grouped-right">
-              {% if enableUserAccounts -%}
-              <div class="control">
-                <button id="registerBtn" type="button" class="button is-primary is-outlined">
-                  <span class="icon">
-                    <i class="icon-user-plus"></i>
-                  </span>
-                  <span>Register</span>
-                </button>
-              </div>
-              {%- endif %}
-              <div class="control">
-                <button id="loginBtn" type="submit" class="button is-info is-outlined">
-                  <span class="icon">
-                    <i class="icon-login"></i>
-                  </span>
-                  <span>Log in</span>
-                </button>
-              </div>
+          </div>
+          <div class="field is-grouped is-grouped-right" style="margin-top: 1.5rem">
+            {% if enableUserAccounts -%}
+            <div class="control">
+              <button id="registerBtn" type="button" class="button is-ghost">
+                <span class="icon">
+                  <i class="icon-user-plus"></i>
+                </span>
+                <span>Register</span>
+              </button>
             </div>
-          </form>
-        </div>
-        <div class="column is-one-third is-hidden-mobile"></div>
+            {%- endif %}
+            <div class="control">
+              <button id="loginBtn" type="submit" class="button is-primary">
+                <span class="icon">
+                  <i class="icon-login"></i>
+                </span>
+                <span>Log in</span>
+              </button>
+            </div>
+          </div>
+        </form>
       </div>
     </div>
   </div>

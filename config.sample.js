@@ -18,7 +18,7 @@ module.exports = {
   /*
     If true, users will be able to create accounts and access their uploaded files.
   */
-  enableUserAccounts: true,
+  enableUserAccounts: false,
 
   /*
     Be advised that this section is only relevant to the migration script.
@@ -27,7 +27,7 @@ module.exports = {
     since base lolisafe v3 do not have usergroups system.
     It is recommended to set "superadminForcePromote" to any falsy value for existing installs.
   */
-  superadminAccount: 'root',
+  superadminAccount: "root",
   superadminForcePromote: true,
 
   /*
@@ -65,7 +65,7 @@ module.exports = {
       LAST_GET_TIME: when cache store exceeds limit, remove cache with oldest access time
       GETS_COUNT: when cache store exceeds limit, remove cache with fewest access count
     */
-    strategy: 'LAST_GET_TIME'
+    strategy: "LAST_GET_TIME",
   },
 
   /*
@@ -103,7 +103,7 @@ module.exports = {
     as any changes in said directory will be detected live.
     You may even add or remove pages while lolisafe is running.
   */
-  pages: ['home', 'auth', 'dashboard', 'faq'],
+  pages: ["home", "auth", "dashboard", "faq"],
 
   /*
     This will load public/libs/cookieconsent/cookieconsent.min.{css,js} on homepage (configured from home.js).
@@ -130,40 +130,40 @@ module.exports = {
     album: true,
     file: true,
     nojs: true,
-    player: true
+    player: true,
   },
 
   /*
     This can be either 'blacklist' or 'whitelist', which should be self-explanatory.
     When this is set to neither, this will fallback to 'blacklist'.
   */
-  extensionsFilterMode: 'blacklist',
+  extensionsFilterMode: "blacklist",
 
   extensionsFilter: [
-    '.bash_profile',
-    '.bash',
-    '.bashrc',
-    '.bat',
-    '.bsh',
-    '.cmd',
-    '.com',
-    '.csh',
-    '.exe',
-    '.exec',
-    '.jar',
-    '.msi',
-    '.nt',
-    '.profile',
-    '.ps1',
-    '.psm1',
-    '.scr',
-    '.sh'
+    ".bash_profile",
+    ".bash",
+    ".bashrc",
+    ".bat",
+    ".bsh",
+    ".cmd",
+    ".com",
+    ".csh",
+    ".exe",
+    ".exec",
+    ".jar",
+    ".msi",
+    ".nt",
+    ".profile",
+    ".ps1",
+    ".psm1",
+    ".scr",
+    ".sh",
   ],
 
   /*
     If set to true, files with no extensions will always be rejected.
   */
-  filterNoExtension: false,
+  filterNoExtension: true,
 
   /*
     If set to true, files with zero bytes size will always be rejected.
@@ -182,9 +182,9 @@ module.exports = {
     NOTE: rootDir can either be relative or absolute path.
   */
   errorPages: {
-    rootDir: './pages/error',
-    404: '404.html',
-    500: '500.html'
+    rootDir: "./pages/error",
+    404: "404.html",
+    500: "500.html",
   },
 
   /*
@@ -200,21 +200,36 @@ module.exports = {
     Setting it as any falsy value will instead apply some default configurations.
   */
   helmet: {
-    contentSecurityPolicy: false,
+    // CSP enabled with report-only for safe rollout (V10.1)
+    // Set reportOnly to false once you've tested that nothing breaks
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'"],
+        styleSrc: ["'self'", "'unsafe-inline'"],
+        imgSrc: ["'self'", "data:", "blob:"],
+        mediaSrc: ["'self'", "blob:"],
+        fontSrc: ["'self'"],
+        connectSrc: ["'self'"],
+        objectSrc: ["'none'"],
+        frameSrc: ["'none'"],
+        baseUri: ["'self'"],
+        formAction: ["'self'"],
+      },
+      reportOnly: true,
+    },
     // Cross-Origin-* headers were enabled by default since Helmet v5.0.0
     crossOriginEmbedderPolicy: false,
     crossOriginOpenerPolicy: false,
     crossOriginResourcePolicy: false,
-    /*
+    // HSTS enabled by default (V10.2)
     hsts: {
       maxAge: 63072000, // 2 years
       includeSubDomains: true,
-      preload: true
-    }
-    */
-    hsts: false,
+      preload: true,
+    },
     // This was also enabled by default since Helmet v5.0.0
-    originAgentCluster: false
+    originAgentCluster: false,
   },
 
   /*
@@ -249,23 +264,19 @@ module.exports = {
   rateLimiters: [
     {
       // 6 requests in 30 seconds
-      routes: [
-        '/api/album/zip'
-      ],
+      routes: ["/api/album/zip"],
       options: {
         points: 6,
-        duration: 30
-      }
+        duration: 30,
+      },
     },
     {
       // 1 request in 60 seconds
-      routes: [
-        '/api/tokens/change'
-      ],
+      routes: ["/api/tokens/change"],
       options: {
         points: 1,
-        duration: 60
-      }
+        duration: 60,
+      },
     },
     /*
       Routes, whose scope would have encompassed other routes that have their own rate limit pools,
@@ -274,22 +285,18 @@ module.exports = {
     */
     {
       // 10 requests in 1 second
-      routes: [
-        '/api/'
-      ],
+      routes: ["/api/"],
       options: {
         points: 10,
-        duration: 1
-      }
-    }
+        duration: 1,
+      },
+    },
   ],
 
   /*
     Whitelisted IP addresses for rate limiters.
   */
-  rateLimitersWhitelist: [
-    '127.0.0.1'
-  ],
+  rateLimitersWhitelist: ["127.0.0.1"],
 
   /*
     Uploads config.
@@ -298,7 +305,7 @@ module.exports = {
     /*
       Folder where files should be stored.
     */
-    folder: 'uploads',
+    folder: "uploads",
 
     /*
       Max file size allowed. Needs to be in MB.
@@ -306,7 +313,7 @@ module.exports = {
       you must set client_max_body_size to the same as maxSize.
       https://nginx.org/en/docs/http/ngx_http_core_module.html#client_max_body_size
     */
-    maxSize: '512MB',
+    maxSize: "512MB",
 
     /*
       Chunk size for chunked uploads. Needs to be in MB.
@@ -333,9 +340,9 @@ module.exports = {
       NOTE: Set "default" or the option itself to falsy value to disable chunked uploads.
     */
     chunkSize: {
-      max: '95MB',
-      default: '25MB',
-      timeout: 30 * 60 * 1000 // 30 minutes
+      max: "95MB",
+      default: "25MB",
+      timeout: 30 * 60 * 1000, // 30 minutes
     },
 
     /*
@@ -348,7 +355,7 @@ module.exports = {
       Max file size allowed for upload by URLs. Needs to be in MB.
       NOTE: Set to falsy value to disable upload by URLs.
     */
-    urlMaxSize: '32MB',
+    urlMaxSize: "32MB",
 
     /*
       Proxy URL uploads.
@@ -363,13 +370,14 @@ module.exports = {
       will become:
       https://images.weserv.nl/?url=example.com%2Fassets%2Fimage.png
     */
-    urlProxy: 'https://external-content.duckduckgo.com/iu/?u={url}&f=1&nofb=1',
+    urlProxy: "https://external-content.duckduckgo.com/iu/?u={url}&f=1&nofb=1",
 
     /*
       Disclaimer message that will be printed underneath the URL uploads form.
       Supports HTML. Be safe though.
     */
-    urlDisclaimerMessage: 'URL uploads are being proxied by <a href="https://duckduckgo.com/" target="_blank" rel="noopener">DuckDuckGo</a>.',
+    urlDisclaimerMessage:
+      'URL uploads are being proxied by <a href="https://duckduckgo.com/" target="_blank" rel="noopener">DuckDuckGo</a>.',
 
     /*
       Filter mode for URL uploads.
@@ -378,7 +386,7 @@ module.exports = {
       The rest are paired with urlExtensionsFilter option below and should be self-explanatory.
       When this is not set to any of the 3 values, this will fallback to 'inherit'.
     */
-    urlExtensionsFilterMode: 'whitelist',
+    urlExtensionsFilterMode: "whitelist",
 
     /*
       Mainly intended for URL proxies that only support certain extensions.
@@ -388,15 +396,15 @@ module.exports = {
       NOTE: Can not be empty when using either 'blacklist' or 'whitelist' mode.
     */
     urlExtensionsFilter: [
-      '.webp',
-      '.jpg',
-      '.jpeg',
-      '.bmp',
-      '.gif',
-      '.png',
-      '.tiff',
-      '.tif',
-      '.svg'
+      ".webp",
+      ".jpg",
+      ".jpeg",
+      ".bmp",
+      ".gif",
+      ".png",
+      ".tiff",
+      ".tif",
+      ".svg",
     ],
 
     // DEPRECATED: Please use "retentionPeriods" option below instead.
@@ -423,11 +431,11 @@ module.exports = {
       // Defaults that also apply to non-registered users
       _: [
         24, // 24 hours (1 day) -- first value is the group's default retention
-        1 / 60 * 15, // 15 minutes
-        1 / 60 * 30, // 30 minutes
+        (1 / 60) * 15, // 15 minutes
+        (1 / 60) * 30, // 30 minutes
         1, // 1 hour
         6, // 6 hours
-        12 // 12 hours
+        12, // 12 hours
       ],
       /*
         Inheritance is based on each group's 'values' in permissionController.js.
@@ -441,27 +449,27 @@ module.exports = {
         24 * 3, // 72 hours (3 days)
         24 * 4, // 96 hours (4 days)
         24 * 5, // 120 hours (5 days)
-        24 * 6 // 144 hours (6 days)
+        24 * 6, // 144 hours (6 days)
       ],
       vip: [
         24 * 30, // 720 hours (30 days) -- group's default
         24 * 14, // 336 hours (14 days)
         24 * 21, // 504 hours (21 days)
-        24 * 91 // 2184 hours (91 days)
+        24 * 91, // 2184 hours (91 days)
       ],
       vvip: [
         null, // -- if null, use previous group's default as this group's default
         0, // permanent
-        24 * 183 // 4392 hours (183 days)
+        24 * 183, // 4392 hours (183 days)
       ],
       moderator: [
-        0 // -- group's default
+        0, // -- group's default
         /*
           vvip group also have 0 (permanent) in its retention periods,
           but duplicates are perfectly fine and will be safely 'uniquified',
           while still properly maintaining defaults when required.
         */
-      ]
+      ],
       /*
         Missing groups will follow the inheritance rules.
         Following the example above, admin and superadmin will have the same retention periods as moderator.
@@ -490,8 +498,8 @@ module.exports = {
     */
     scan: {
       enabled: false,
-      groupBypass: 'admin', // Other group names in controllers/permissionController.js
-      whitelistExtensions: null, /* [
+      groupBypass: "admin", // Other group names in controllers/permissionController.js
+      whitelistExtensions: null /* [
         '.webp',
         '.jpg',
         '.jpeg',
@@ -506,7 +514,7 @@ module.exports = {
         '.avi',
         '.mov',
         '.mkv'
-      ], */
+      ], */,
 
       // Make sure this doesn't exceed size limit in your ClamAV config
       maxSize: null, // Needs to be in MB
@@ -518,27 +526,27 @@ module.exports = {
       clamOptions: {
         debugMode: false,
         clamscan: {
-          path: '/usr/bin/clamscan',
+          path: "/usr/bin/clamscan",
           db: null,
           scanArchives: true,
-          active: true
+          active: true,
         },
         clamdscan: {
           // When both socket and host+port are specified, it will only use socket
-          socket: '/var/run/clamav/clamd.ctl',
-          host: '127.0.0.1',
+          socket: "/var/run/clamav/clamd.ctl",
+          host: "127.0.0.1",
           port: 3310,
           timeout: 1 * 60 * 1000, // 1 minute
           localFallback: true,
-          path: '/usr/bin/clamdscan',
+          path: "/usr/bin/clamdscan",
           configFile: null,
           multiscan: true,
           reloadDb: false,
           active: true,
-          bypassTest: false
+          bypassTest: false,
         },
-        preference: 'clamdscan'
-      }
+        preference: "clamdscan",
+      },
     },
 
     /*
@@ -556,7 +564,7 @@ module.exports = {
       min: 4,
       max: 32,
       default: 8,
-      force: false
+      force: false,
     },
 
     // DEPRECATED: Please use "queryDatabaseForIdentifierMatch" option below instead.
@@ -610,7 +618,7 @@ module.exports = {
       size: 200,
       // https://github.com/fluent-ffmpeg/node-fluent-ffmpeg/tree/v2.1.2#screenshotsoptions-dirname-generate-thumbnails
       // Only accepts a single value. Defaults to 20%.
-      videoTimemark: '20%'
+      videoTimemark: "20%",
     },
 
     /*
@@ -631,7 +639,7 @@ module.exports = {
       home uploader's Config tab, as the former would only grey out the option.
     */
     stripTags: {
-      default: false,
+      default: true,
       video: false,
       force: false,
       // Supporting the extensions below requires using custom globally-installed libvips.
@@ -639,8 +647,8 @@ module.exports = {
       blacklistExtensions: [
         // GIFs require libvips compiled with ImageMagick/GraphicsMagick support.
         // https://sharp.pixelplumbing.com/api-output#gif
-        '.gif'
-      ]
+        ".gif",
+      ],
     },
 
     /*
@@ -657,11 +665,11 @@ module.exports = {
     */
     jsZipOptions: {
       streamFiles: true,
-      compression: 'DEFLATE',
+      compression: "DEFLATE",
       compressionOptions: {
-        level: 1
-      }
-    }
+        level: 1,
+      },
+    },
   },
 
   /*
@@ -670,7 +678,7 @@ module.exports = {
   dashboard: {
     uploadsPerPage: 24,
     albumsPerPage: 10,
-    usersPerPage: 10
+    usersPerPage: 10,
   },
 
   /*
@@ -683,7 +691,7 @@ module.exports = {
       This limit will only be applied to the subtitle in the page.
       NOTE: Set to falsy value to inherit "maxSize" option.
     */
-    noJsMaxSize: '100MB',
+    noJsMaxSize: "100MB",
 
     /*
       If you have a Page Rule in Cloudflare to cache everything in the album zip
@@ -694,7 +702,7 @@ module.exports = {
       since long-caching of such huge files are against Cloudflare's Terms of Service.
       NOTE: Set to falsy value to disable max total size.
     */
-    zipMaxTotalSize: '512MB',
+    zipMaxTotalSize: "512MB",
 
     /*
       If you want the service to automatically use Cloudflare API to purge cache on file deletion,
@@ -707,15 +715,15 @@ module.exports = {
       API token configuration example: https://github.com/BobbyWibowo/lolisafe/pull/216#issue-440389284.
       After everything is ready, you can then set "purgeCache" to true.
     */
-    zoneId: '',
+    zoneId: "",
     purgeCache: false,
 
-    apiToken: '',
+    apiToken: "",
 
-    userServiceKey: '',
+    userServiceKey: "",
 
-    apiKey: '',
-    email: ''
+    apiKey: "",
+    email: "",
   },
 
   /*
@@ -733,14 +741,25 @@ module.exports = {
     Folder where to store logs.
     NOTE: This is currently unused.
   */
-  logsFolder: 'logs',
+  logsFolder: "logs",
+
+  /*
+    Temporary uploads for non-authenticated users.
+    Allows anonymous users to upload files that auto-expire.
+  */
+  tempUploads: {
+    enabled: true,
+    maxSize: 50, // Max file size in MB
+    retentionHours: 24, // Hours before auto-deletion
+    maxPerIpPerHour: 10 // Rate limit per IP
+  },
 
   /*
     The following values shouldn't be touched, unless you know what you are doing.
   */
   database: {
-    client: 'better-sqlite3',
-    connection: { filename: './database/db.sqlite3' },
-    useNullAsDefault: true
-  }
-}
+    client: "better-sqlite3",
+    connection: { filename: "./database/db.sqlite3" },
+    useNullAsDefault: true,
+  },
+};

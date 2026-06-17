@@ -103,7 +103,7 @@
       {{ album.description | safe }}
     </div>
     {%- endif %}
-    <hr>
+    <hr class="divider">
 
     {% if nojs -%}
     <article class="message">
@@ -115,24 +115,25 @@
     {%- endif %}
 
     {% if files.length -%}
-    <div id="table" class="columns is-multiline is-mobile is-centered has-text-centered">
+    <div id="table" class="bento-grid">
       {% for file in files %}
-        <div class="image-container column">
-          <a class="image" href="{{ fileRoot }}/{{ file.name }}" target="_blank">
-            {% if file.thumb -%}
-              {% if nojs -%}
-              <img alt="{{ file.name }}" src="{{ fileRoot }}/{{ file.thumb }}" width="200" height="200" loading="lazy">
+        <div class="file-card">
+          <div class="file-card-preview">
+            <a class="image" href="{{ fileRoot }}/{{ file.name }}" target="_blank">
+              {% if file.thumb -%}
+                {% if nojs -%}
+                <img alt="{{ file.name }}" src="{{ fileRoot }}/{{ file.thumb }}" loading="lazy">
+                {%- else -%}
+                <img alt="{{ file.name }}" data-src="{{ fileRoot }}/{{ file.thumb }}">
+                {%- endif %}
               {%- else -%}
-              <img alt="{{ file.name }}" data-src="{{ fileRoot }}/{{ file.thumb }}">
+              <h1 class="title">{{ file.extname or 'N/A' }}</h1>
               {%- endif %}
-            {%- else -%}
-            <h1 class="title">{{ file.extname or 'N/A' }}</h1>
-            {%- endif %}
-          </a>
-          <div class="details">
-            <p class="name">{{ file.name }}</p>
-            <p class="file-size">{{ file.size }} B</p>
-            <p class="file-date" data-value="{{ file.timestamp }}"></p>
+            </a>
+          </div>
+          <div class="file-card-info">
+            <span class="filename">{{ file.name }}</span>
+            <span class="filesize file-size">{{ file.size }} B</span>
           </div>
         </div>
       {% endfor %}

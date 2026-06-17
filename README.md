@@ -2,6 +2,8 @@
 
 [![safe.fiery.me](https://i.fiery.me/upN1Q.png)](https://safe.fiery.me)
 
+> This is a fork of [lolisafe](https://github.com/WeebDev/lolisafe) by [WeebDev](https://github.com/WeebDev). Maintained by [bravo68web](https://github.com/bravo68web).
+
 [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](https://raw.githubusercontent.com/WeebDev/lolisafe/master/LICENSE)
 
 [![JavaScript Style Guide](https://cdn.rawgit.com/standard/standard/master/badge.svg)](https://github.com/standard/standard)
