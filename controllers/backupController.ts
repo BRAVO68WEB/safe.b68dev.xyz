@@ -363,24 +363,29 @@ self.runBackup = async (type: 'manual' | 'scheduled'): Promise<any> => {
   }
 }
 
-// Backup database using better-sqlite3's backup API
+// Backup database by copying the SQLite file
 self.backupDatabase = async (backupPath: string): Promise<void> => {
   try {
-    // Get the knex instance's database connection
-    const knex = utils.db
-    const db = knex.client.driver
-    
-    // Use better-sqlite3's backup API
-    const backup = db.backup(backupPath)
-    
-    return new Promise((resolve, reject) => {
-      backup.then(() => {
-        logger.log('Database backup completed')
-        resolve()
-      }).catch((error: any) => {
-        reject(new ServerError(`Database backup failed: ${error.message}`))
-      })
-    })
+    const dbPath = config.database.connection.filename
+
+    // Use WAL checkpoint to ensure consistent state
+    await utils.db.raw('PRAGMA wal_checkpoint(TRUNCATE)')
+
+    // Copy the database file
+    await jetpack.copyAsync(dbPath, backupPath, { overwrite: true })
+
+    // Also copy WAL and SHM files if they exist
+    const walPath = dbPath + '-wal'
+    const shmPath = dbPath + '-shm'
+
+    if (await jetpack.existsAsync(walPath)) {
+      await jetpack.copyAsync(walPath, backupPath + '-wal', { overwrite: true })
+    }
+    if (await jetpack.existsAsync(shmPath)) {
+      await jetpack.copyAsync(shmPath, backupPath + '-shm', { overwrite: true })
+    }
+
+    logger.log('Database backup completed')
   } catch (error) {
     throw new ServerError(`Database backup failed: ${error instanceof Error ? error.message : 'Unknown error'}`)
   }
