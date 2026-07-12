@@ -2537,7 +2537,7 @@ page.getBackupDashboard = (params = {}) => {
     }
 
     const status = response.data
-    let content = `
+    const content = `
       <h2 class="title">Remote Backup</h2>
       <p class="subtitle">Manage S3 backups for database and uploaded files</p>
       <hr class="divider">
@@ -2551,19 +2551,23 @@ page.getBackupDashboard = (params = {}) => {
               <p><strong>S3 Enabled:</strong> ${status.s3Enabled ? '<span class="has-text-success">Yes</span>' : '<span class="has-text-warning">No</span>'}</p>
               <p><strong>Backup In Progress:</strong> ${status.inProgress ? '<span class="has-text-warning">Yes</span>' : '<span class="has-text-success">No</span>'}</p>
               <p><strong>Schedule:</strong> ${status.schedule || '<span class="has-text-grey">Not set</span>'}</p>
-              ${status.lastBackup ? `
+              ${status.lastBackup
+? `
                 <p><strong>Last Backup:</strong></p>
                 <ul>
                   <li>Type: ${status.lastBackup.type}</li>
                   <li>Status: ${status.lastBackup.status === 'success' ? '<span class="has-text-success">Success</span>' : '<span class="has-text-danger">Failed</span>'}</li>
                   <li>Time: ${new Date(status.lastBackup.timestamp * 1000).toLocaleString()}</li>
-                  ${status.lastBackup.details ? `
+                  ${status.lastBackup.details
+? `
                     <li>Files: ${status.lastBackup.details.fileCount || 'N/A'}</li>
                     <li>Size: ${status.lastBackup.details.totalSize ? page.prettifyBytes(status.lastBackup.details.totalSize) : 'N/A'}</li>
                     <li>Duration: ${status.lastBackup.details.duration ? (status.lastBackup.details.duration / 1000).toFixed(2) + 's' : 'N/A'}</li>
-                  ` : ''}
+                  `
+: ''}
                 </ul>
-              ` : '<p><strong>Last Backup:</strong> <span class="has-text-grey">Never</span></p>'}
+              `
+: '<p><strong>Last Backup:</strong> <span class="has-text-grey">Never</span></p>'}
             </div>
           </div>
         </div>
@@ -2631,7 +2635,7 @@ page.getBackupLogs = (pageNum = 0) => {
 
     const logs = response.data.logs
     const pages = response.data.pages
-    const page = response.data.page
+    const currentPage = response.data.page
 
     if (logs.length === 0) {
       container.innerHTML = '<p class="has-text-grey">No backup logs found.</p>'
@@ -2663,20 +2667,24 @@ page.getBackupLogs = (pageNum = 0) => {
           <td>${typeLabel}</td>
           <td><span class="${statusClass}">${log.status}</span></td>
           <td>
-            ${log.details ? `
+            ${log.details
+? `
               ${log.details.fileCount ? `Files: ${log.details.fileCount}<br>` : ''}
               ${log.details.totalSize ? `Size: ${page.prettifyBytes(log.details.totalSize)}<br>` : ''}
               ${log.details.duration ? `Duration: ${(log.details.duration / 1000).toFixed(2)}s<br>` : ''}
               ${log.details.error ? `Error: ${log.details.error}` : ''}
-            ` : '-'}
+            `
+: '-'}
           </td>
           <td>
-            ${log.s3_key && log.type !== 'restore' ? `
+            ${log.s3_key && log.type !== 'restore'
+? `
               <button class="button is-small is-warning is-outlined" data-action="restore-backup" data-s3-key="${log.s3_key}">
                 <span class="icon"><i class="icon-download"></i></span>
                 <span>Restore</span>
               </button>
-            ` : '-'}
+            `
+: '-'}
           </td>
         </tr>
       `
@@ -2690,10 +2698,14 @@ page.getBackupLogs = (pageNum = 0) => {
     if (pages > 1) {
       tableHtml += `
         <nav class="pagination is-small is-centered" role="navigation" aria-label="pagination">
-          <a class="pagination-previous" ${page <= 1 ? 'disabled' : ''} data-action="backup-page" data-page="${page - 1}">Previous</a>
-          <a class="pagination-next" ${page >= pages ? 'disabled' : ''} data-action="backup-page" data-page="${page + 1}">Next</a>
+          <a class="pagination-previous" ${currentPage <= 1
+? 'disabled'
+: ''} data-action="backup-page" data-page="${currentPage - 1}">Previous</a>
+          <a class="pagination-next" ${currentPage >= pages
+? 'disabled'
+: ''} data-action="backup-page" data-page="${currentPage + 1}">Next</a>
           <ul class="pagination-list">
-            <li><span class="pagination-link is-current">${page}</span></li>
+            <li><span class="pagination-link is-current">${currentPage}</span></li>
             <li><span class="pagination-ellipsis">&hellip;</span></li>
             <li><span class="pagination-link">${pages}</span></li>
           </ul>
