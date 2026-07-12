@@ -2656,7 +2656,8 @@ page.getBackupLogs = (pageNum = 0) => {
         <tbody>
     `
 
-    for (const log of logs) {
+    for (let i = 0; i < logs.length; i++) {
+      const log = logs[i]
       const timestamp = new Date(log.timestamp * 1000).toLocaleString()
       const statusClass = log.status === 'success' ? 'has-text-success' : 'has-text-danger'
       const typeLabel = log.type.charAt(0).toUpperCase() + log.type.slice(1)

@@ -12,6 +12,7 @@ $blue: hsl(217deg 91% 60%);
 $red: hsl(348deg 100% 61%);
 
 /** Bulma: Variables **/
+@use 'sass:color';
 @import '../../node_modules/bulma/sass/utilities/initial-variables';
 @import '../../node_modules/bulma/sass/utilities/functions';
 @import '../../node_modules/bulma/sass/utilities/derived-variables';
@@ -22,8 +23,8 @@ $text: $white-ter;
 $strong-color: $grey-lighter;
 
 $link: $blue;
-$link-hover: lighten($blue, 8%);
-$link-light: lighten($blue, 8%);
+$link-hover: color.adjust($blue, $lightness: 8%);
+$link-light: color.adjust($blue, $lightness: 8%);
 
 $hr-background-color: $grey-dark;
 
@@ -69,13 +70,13 @@ $bg-surface-active: hsl(0deg 0% 13%);
 $border-subtle: hsl(0deg 0% 15%);
 $border-default: hsl(0deg 0% 20%);
 $accent: $blue;
-$accent-hover: lighten($blue, 8%);
+$accent-hover: color.adjust($blue, $lightness: 8%);
 $text-muted: $grey-light;
 $radius-sm: 8px;
 $radius-md: 12px;
 $radius-lg: 16px;
-$shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
-$shadow-md: 0 2px 8px rgba(0, 0, 0, 0.4);
-$shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.5);
+$shadow-sm: 0 1px 2px rgb(0 0 0 / 30%);
+$shadow-md: 0 2px 8px rgb(0 0 0 / 40%);
+$shadow-lg: 0 4px 16px rgb(0 0 0 / 50%);
 $transition-fast: 150ms ease;
 $transition-normal: 250ms ease;

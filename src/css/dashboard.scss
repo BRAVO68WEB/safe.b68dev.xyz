@@ -123,7 +123,12 @@ li[data-action="page-ellipsis"] {
 }
 
 #page {
-  min-width: 0
+  min-width: 0;
+  background-color: $bg-surface;
+  border: 1px solid $border-subtle;
+  border-radius: $radius-md;
+  padding: 1.5rem;
+  min-height: 400px
 }
 
 .is-linethrough {
@@ -214,7 +219,7 @@ li[data-action="page-ellipsis"] {
 
       &:not(:active,:hover) {
         color: $white;
-        background-color: rgba(0, 0, 0, 0.56)
+        background-color: rgb(0 0 0 / 56%)
       }
     }
   }
@@ -245,16 +250,6 @@ li[data-action="page-ellipsis"] {
   .menu-list a {
     font-size: 0.9rem
   }
-}
-
-/** Page content area **/
-
-#page {
-  background-color: $bg-surface;
-  border: 1px solid $border-subtle;
-  border-radius: $radius-md;
-  padding: 1.5rem;
-  min-height: 400px
 }
 
 /** Bulk operations bar **/
