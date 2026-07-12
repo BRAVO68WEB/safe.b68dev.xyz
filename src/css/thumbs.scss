@@ -50,7 +50,7 @@
     justify-content: flex-end;
     padding: 8px;
     gap: 4px;
-    background: linear-gradient(180deg, rgba(0, 0, 0, 0.5) 0%, transparent 50%);
+    background: linear-gradient(180deg, rgb(0 0 0 / 50%) 0%, transparent 50%);
     opacity: 0;
     transition: opacity $transition-fast;
 
@@ -137,7 +137,7 @@
     left: 11px;
     bottom: 11px;
     right: 11px;
-    background-color: rgba(0, 0, 0, 0.6);
+    background-color: rgb(0 0 0 / 60%);
     color: $text;
     padding: 4px 6px;
     font-size: 0.75rem;

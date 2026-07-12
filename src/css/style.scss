@@ -162,6 +162,56 @@ code,
       }
     }
   }
+
+  border-radius: $radius-sm;
+  transition: background-color $transition-fast, border-color $transition-fast, box-shadow $transition-fast;
+
+  &.is-primary {
+    background-color: $accent;
+    border-color: transparent;
+    color: $white;
+
+    &:hover {
+      background-color: $accent-hover;
+      border-color: transparent;
+      color: $white
+    }
+
+    &.is-outlined {
+      background-color: transparent;
+      border-color: $accent;
+      color: $accent;
+
+      &:hover {
+        background-color: $accent;
+        border-color: $accent;
+        color: $white
+      }
+    }
+  }
+
+  &.is-link {
+    background-color: transparent;
+    border-color: transparent;
+    color: $accent;
+
+    &:hover {
+      background-color: color.adjust($accent, $alpha: -0.9);
+      border-color: transparent;
+      color: $accent-hover
+    }
+  }
+
+  &.is-ghost {
+    background-color: transparent;
+    border-color: transparent;
+    color: $text-muted;
+
+    &:hover {
+      background-color: $bg-surface-hover;
+      color: $text
+    }
+  }
 }
 
 .checkbox:hover,
@@ -392,35 +442,6 @@ a.floating-home-button {
   &:focus {
     border-color: $accent;
     box-shadow: 0 0 0 2px rgba($accent, 0.15)
-  }
-}
-
-/** Modern Button Styles **/
-
-.button {
-  border-radius: $radius-sm;
-  transition: background-color $transition-fast, border-color $transition-fast, box-shadow $transition-fast;
-
-  &.is-primary {
-    background-color: $accent;
-    border-color: transparent;
-    color: $white;
-
-    &:hover {
-      background-color: $accent-hover;
-      border-color: transparent
-    }
-  }
-
-  &.is-ghost {
-    background-color: transparent;
-    border-color: transparent;
-    color: $text-muted;
-
-    &:hover {
-      background-color: $bg-surface-hover;
-      color: $text
-    }
   }
 }
 
