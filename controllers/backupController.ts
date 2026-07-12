@@ -2,7 +2,7 @@ import path = require('path')
 import fs = require('fs')
 import { S3Client, PutObjectCommand, GetObjectCommand, HeadObjectCommand } from '@aws-sdk/client-s3'
 import { Upload } from '@aws-sdk/lib-storage'
-const archiver = require('archiver')
+import { ZipArchive } from 'archiver'
 import { createReadStream, createWriteStream } from 'fs-jetpack'
 import jetpack = require('fs-jetpack')
 import utils = require('./utilsController')
@@ -395,7 +395,7 @@ self.backupDatabase = async (backupPath: string): Promise<void> => {
 self.backupFiles = async (zipPath: string): Promise<number> => {
   return new Promise((resolve, reject) => {
     const output = createWriteStream(zipPath)
-    const archive = archiver('zip', {
+    const archive = new ZipArchive({
       zlib: { level: 1 }, // Fast compression
     })
 
