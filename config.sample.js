@@ -727,6 +727,84 @@ module.exports = {
   },
 
   /*
+    Remote Backup to S3 Configuration.
+    Supports any S3-compatible storage (AWS S3, DigitalOcean Spaces, MinIO, etc.).
+
+    To enable backups, set "enabled" to true and fill in your S3 credentials.
+    The backup system will automatically backup your database and uploaded files.
+
+    NOTE: It is recommended to use environment variables for sensitive credentials
+    in production environments. You can override these values with:
+      S3_REGION, S3_BUCKET, S3_ACCESS_KEY_ID, S3_SECRET_ACCESS_KEY, S3_ENDPOINT
+  */
+  s3: {
+    /*
+      AWS region where your S3 bucket is located.
+      Examples: 'us-east-1', 'eu-west-1', 'sgp1' (for DigitalOcean Spaces)
+    */
+    region: 'us-east-1',
+
+    /*
+      Name of your S3 bucket where backups will be stored.
+      The bucket must exist and the credentials must have write access.
+    */
+    bucket: 'lolisafe-backups',
+
+    /*
+      S3 access credentials.
+      WARNING: Keep these secret! Do not commit to version control.
+      Consider using environment variables instead.
+    */
+    accessKeyId: '',
+    secretAccessKey: '',
+
+    /*
+      Custom S3 endpoint for S3-compatible services (optional).
+      Examples:
+        - DigitalOcean Spaces: 'https://sgp1.digitaloceanspaces.com'
+        - MinIO: 'http://localhost:9000'
+        - Cloudflare R2: 'https://<account-id>.r2.cloudflarestorage.com'
+        - Wasabi: 'https://s3.wasabisys.com'
+      Set to null or empty string for AWS S3.
+    */
+    endpoint: null,
+
+    /*
+      S3 path style configuration.
+      - 'auto': Automatically detect based on endpoint (recommended)
+      - 'path': Use path-style URLs (https://s3.amazonaws.com/bucket/key)
+      - 'virtual': Use virtual-hosted-style URLs (https://bucket.s3.amazonaws.com/key)
+
+      Path-style is required for most S3-compatible services (MinIO, Wasabi, etc.)
+      Virtual-hosted-style is preferred for AWS S3 when possible.
+      Cloudflare R2 works with both styles.
+    */
+    pathStyle: 'auto',
+
+    /*
+      Cron expression for scheduled backups (optional).
+      Default: '0 3 * * *' = Every day at 3:00 AM
+
+      Common examples:
+        - '0 * * * *' = Every hour
+        - '0 3 * * *' = Daily at 3 AM
+        - '0 3 * * 0' = Weekly on Sunday at 3 AM
+        - '0 3 1 * *' = Monthly on the 1st at 3 AM
+
+      Set to null or empty string to disable scheduled backups.
+      Manual backups (JIT) will still work even if this is disabled.
+    */
+    schedule: '0 3 * * *',
+
+    /*
+      Enable or disable the backup system.
+      When disabled, scheduled backups will not run,
+      but manual backups can still be triggered from the dashboard.
+    */
+    enabled: false,
+  },
+
+  /*
     Enable Cache-Control header tags.
     Please consult the relevant codes in lolisafe.js to learn the specifics.
     true or 1: Cloudflare (will cache some frontend pages in CDN)

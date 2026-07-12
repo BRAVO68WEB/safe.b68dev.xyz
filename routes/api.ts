@@ -2,6 +2,7 @@ import { Router } from "hyper-express";
 const routes = new Router();
 const albums = require("./../controllers/albumsController");
 const auth = require("./../controllers/authController");
+const backup = require("./../controllers/backupController");
 const tokens = require("./../controllers/tokenController");
 const upload = require("./../controllers/uploadController");
 const utils = require("./../controllers/utilsController");
@@ -127,5 +128,13 @@ routes.post("/tokens/verify", utils.assertJSON, tokens.verify);
 
 routes.get("/stats", [auth.requireUser], utils.stats);
 routes.get("/stats/:category", [auth.requireUser], utils.statsCategory);
+
+// Backup routes (admin-only)
+routes.post("/backup/trigger", [auth.requireUser], backup.triggerBackup);
+routes.post("/backup/restore", [auth.requireUser, utils.assertJSON], backup.restoreBackup);
+routes.get("/backup/logs", auth.requireUser, backup.getBackupLogs);
+routes.get("/backup/logs/:page", auth.requireUser, backup.getBackupLogs);
+routes.get("/backup/status", auth.requireUser, backup.getBackupStatus);
+routes.post("/backup/schedule", [auth.requireUser, utils.assertJSON], backup.updateSchedule);
 
 export = routes;

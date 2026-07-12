@@ -40,7 +40,10 @@
     "rebuild-dependencies": "rm -f ./pnpm-lock.yaml && pnpm install"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.1085.0",
+    "@aws-sdk/lib-storage": "^3.1085.0",
     "abort-controller": "~3.0.0",
+    "archiver": "^8.0.0",
     "bcrypt": "~5.1.1",
     "better-sqlite3": "^12.8.0",
     "blake3": "~2.1.7",
@@ -59,6 +62,7 @@
     "knex": "~3.1.0",
     "live-directory": "~2.3.2",
     "markdown-it": "~14.0.0",
+    "node-cron": "^4.6.0",
     "node-fetch": "~2.7.0",
     "nunjucks": "~3.2.4",
     "parse-duration": "~1.1.0",
@@ -67,11 +71,13 @@
     "rate-limiter-flexible": "~5.0.0",
     "search-query-parser": "~1.6.0",
     "sharp": "~0.33.2",
-    "systeminformation": "~5.22.0"
+    "systeminformation": "~5.31.16"
   },
   "devDependencies": {
     "@ronilaukkarinen/gulp-stylelint": "~14.1.2",
+    "@types/archiver": "^8.0.0",
     "@types/node": "^25.9.3",
+    "@types/node-cron": "^3.0.11",
     "browserslist": "~4.23.0",
     "bulma": "~0.9.4",
     "cssnano": "~6.0.5",

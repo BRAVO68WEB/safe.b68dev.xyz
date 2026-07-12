@@ -382,6 +382,30 @@ safe.use('/api', api)
       setInterval(tempCleanupCheck, 5 * 60 * 1000)
     }
 
+    // Scheduled backup to S3
+    if (config.s3 && config.s3.enabled && config.s3.schedule) {
+      const backupController = require('./controllers/backupController')
+      const cron = require('node-cron')
+      
+      if (cron.validate(config.s3.schedule)) {
+        const scheduledBackup = cron.schedule(config.s3.schedule, async () => {
+          try {
+            logger.log('Running scheduled backup...')
+            await backupController.runBackup('scheduled')
+          } catch (error) {
+            logger.error(error, { prefix: 'Scheduled Backup Error: ' })
+          }
+        }, {
+          scheduled: true,
+          timezone: 'UTC',
+        })
+        
+        logger.log(`Scheduled backup enabled: ${config.s3.schedule}`)
+      } else {
+        logger.error(`Invalid cron expression for S3 backup schedule: ${config.s3.schedule}`)
+      }
+    }
+
     if (utils.devmode) {
       const { inspect } = require('util')
       require('readline').createInterface({
