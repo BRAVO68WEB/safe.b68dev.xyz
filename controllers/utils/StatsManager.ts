@@ -282,6 +282,99 @@ self.getAlbumsStats = async (db: any) => {
   return stats
 }
 
+self.getBackupStats = async (db: any) => {
+  const stats: Record<string, any> = {
+    'Total Backups': 0,
+    'Successful': 0,
+    'Failed': 0,
+    'Manual': 0,
+    'Scheduled': 0,
+    'Restores': 0,
+    'Last Backup': {
+      value: null,
+      type: Type.UNAVAILABLE
+    },
+    'Last Duration': {
+      value: null,
+      type: Type.UNAVAILABLE
+    },
+    'Last Size': {
+      value: null,
+      type: Type.UNAVAILABLE
+    },
+    'Last File Count': {
+      value: null,
+      type: Type.UNAVAILABLE
+    }
+  }
+
+  try {
+    const hasBackupLogs = await db.schema.hasTable('backup_logs')
+    if (!hasBackupLogs) {
+      return stats
+    }
+
+    const logs = await db.table('backup_logs')
+      .orderBy('timestamp', 'desc')
+
+    stats['Total Backups'] = logs.length
+
+    for (const log of logs) {
+      if (log.type === 'restore') {
+        stats.Restores++
+        continue
+      }
+
+      if (log.status === 'success') {
+        stats.Successful++
+      } else {
+        stats.Failed++
+      }
+
+      if (log.type === 'manual') {
+        stats.Manual++
+      } else if (log.type === 'scheduled') {
+        stats.Scheduled++
+      }
+    }
+
+    const lastBackup = logs.find((log: any) => log.type !== 'restore')
+    if (lastBackup) {
+      stats['Last Backup'] = {
+        value: lastBackup.timestamp,
+        type: 'datetime'
+      }
+
+      if (lastBackup.details) {
+        try {
+          const details = JSON.parse(lastBackup.details)
+          if (details.duration) {
+            stats['Last Duration'] = {
+              value: details.duration,
+              type: 'duration'
+            }
+          }
+          if (details.totalSize) {
+            stats['Last Size'] = {
+              value: details.totalSize,
+              type: Type.BYTE
+            }
+          }
+          if (details.fileCount) {
+            stats['Last File Count'] = details.fileCount
+          }
+        } catch (e) {
+          logger.error(e, { prefix: 'Backup Stats Parse: ' })
+        }
+      }
+    }
+  } catch (error) {
+    logger.error(error, { prefix: 'Backup Stats: ' })
+  }
+
+  return stats
+}
+
 const statGenerators: Record<string, StatGenerator> = {
   system: {
     title: 'System',
@@ -309,6 +402,10 @@ const statGenerators: Record<string, StatGenerator> = {
   albums: {
     title: 'Albums',
     funct: self.getAlbumsStats
+  },
+  backups: {
+    title: 'Backups',
+    funct: self.getBackupStats
   }
 }
 

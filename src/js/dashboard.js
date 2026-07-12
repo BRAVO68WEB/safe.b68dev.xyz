@@ -3511,6 +3511,12 @@ page.buildStatisticTable = (title, stats) => {
           case 'uptime':
             parsed = page.getPrettyUptime(value)
             break
+          case 'datetime':
+            parsed = value ? new Date(value * 1000).toLocaleString() : 'N/A'
+            break
+          case 'duration':
+            parsed = value ? `${(value / 1000).toFixed(2)}s` : 'N/A'
+            break
           case 'unavailable':
             parsed = 'N/A'
             break
