@@ -235,7 +235,8 @@ page.prepareDashboard = () => {
     { selector: '#itemManageUploads', onclick: page.getUploads, params: { all: true }, group: 'moderator' },
     { selector: '#itemManageAlbums', onclick: page.getAlbums, params: { all: true }, group: 'moderator' },
     { selector: '#itemStatistics', onclick: page.getStatistics, group: 'admin' },
-    { selector: '#itemManageUsers', onclick: page.getUsers, group: 'admin' }
+    { selector: '#itemManageUsers', onclick: page.getUsers, group: 'admin' },
+    { selector: '#itemRemoteBackup', onclick: page.getBackupDashboard, group: 'admin' }
   ]
 
   for (let i = 0; i < itemMenus.length; i++) {
@@ -406,6 +407,15 @@ page.domClick = event => {
       return page.deleteUser(id)
     case 'view-user-uploads':
       return page.viewUserUploads(id, element)
+    // Backup actions
+    case 'trigger-backup':
+      return page.triggerBackup()
+    case 'restore-backup':
+      return page.restoreBackup(element.dataset.s3Key)
+    case 'update-schedule':
+      return page.updateBackupSchedule()
+    case 'backup-page':
+      return page.getBackupLogs(parseInt(element.dataset.page))
     // Manage your token
     case 'get-new-token':
       return page.getNewToken(element)
@@ -2504,6 +2514,292 @@ page.sendNewPassword = (pass, element) => {
     })
   }).catch(error => {
     page.updateTrigger(element)
+    page.onAxiosError(error)
+  })
+}
+
+page.getBackupDashboard = (params = {}) => {
+  if (!page.permissions.admin) return swal('An error occurred!', 'You cannot do this!', 'error')
+
+  if (page.isSomethingLoading) return page.warnSomethingLoading()
+
+  page.updateTrigger(params.trigger, 'loading')
+
+  const url = 'api/backup/status'
+  axios.get(url).then(response => {
+    if (response.data.success === false) {
+      if (response.data.description === 'No token provided') {
+        return page.verifyToken(page.token)
+      } else {
+        page.updateTrigger(params.trigger)
+        return swal('An error occurred!', response.data.description, 'error')
+      }
+    }
+
+    const status = response.data
+    let content = `
+      <h2 class="title">Remote Backup</h2>
+      <p class="subtitle">Manage S3 backups for database and uploaded files</p>
+      <hr class="divider">
+
+      <div class="columns">
+        <div class="column">
+          <div class="box">
+            <h3 class="title is-4">Status</h3>
+            <div class="content">
+              <p><strong>S3 Configured:</strong> ${status.s3Configured ? '<span class="has-text-success">Yes</span>' : '<span class="has-text-danger">No</span>'}</p>
+              <p><strong>S3 Enabled:</strong> ${status.s3Enabled ? '<span class="has-text-success">Yes</span>' : '<span class="has-text-warning">No</span>'}</p>
+              <p><strong>Backup In Progress:</strong> ${status.inProgress ? '<span class="has-text-warning">Yes</span>' : '<span class="has-text-success">No</span>'}</p>
+              <p><strong>Schedule:</strong> ${status.schedule || '<span class="has-text-grey">Not set</span>'}</p>
+              ${status.lastBackup ? `
+                <p><strong>Last Backup:</strong></p>
+                <ul>
+                  <li>Type: ${status.lastBackup.type}</li>
+                  <li>Status: ${status.lastBackup.status === 'success' ? '<span class="has-text-success">Success</span>' : '<span class="has-text-danger">Failed</span>'}</li>
+                  <li>Time: ${new Date(status.lastBackup.timestamp * 1000).toLocaleString()}</li>
+                  ${status.lastBackup.details ? `
+                    <li>Files: ${status.lastBackup.details.fileCount || 'N/A'}</li>
+                    <li>Size: ${status.lastBackup.details.totalSize ? page.prettifyBytes(status.lastBackup.details.totalSize) : 'N/A'}</li>
+                    <li>Duration: ${status.lastBackup.details.duration ? (status.lastBackup.details.duration / 1000).toFixed(2) + 's' : 'N/A'}</li>
+                  ` : ''}
+                </ul>
+              ` : '<p><strong>Last Backup:</strong> <span class="has-text-grey">Never</span></p>'}
+            </div>
+          </div>
+        </div>
+
+        <div class="column">
+          <div class="box">
+            <h3 class="title is-4">Actions</h3>
+            <div class="buttons">
+              <button class="button is-primary is-fullwidth" data-action="trigger-backup" ${status.inProgress || !status.s3Configured ? 'disabled' : ''}>
+                <span class="icon"><i class="icon-upload-cloud"></i></span>
+                <span>Backup Now</span>
+              </button>
+            </div>
+
+            <div class="field">
+              <label class="label">Schedule (Cron Expression)</label>
+              <div class="control">
+                <input class="input" type="text" id="backup-schedule" placeholder="0 3 * * *" value="${status.schedule || ''}">
+              </div>
+              <p class="help">Example: 0 3 * * * (daily at 3 AM)</p>
+            </div>
+            <div class="buttons">
+              <button class="button is-info is-fullwidth" data-action="update-schedule">
+                <span class="icon"><i class="icon-floppy"></i></span>
+                <span>Update Schedule</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="box">
+        <h3 class="title is-4">Backup History</h3>
+        <div id="backup-logs-container">
+          <p class="has-text-grey">Loading backup history...</p>
+        </div>
+      </div>
+    `
+
+    page.dom.innerHTML = content
+    page.fadeIn(page.dom)
+    page.scrollTo(page.dom)
+    page.updateTrigger(params.trigger, 'active')
+
+    page.getBackupLogs()
+  }).catch(error => {
+    page.updateTrigger(params.trigger)
+    page.onAxiosError(error)
+  })
+}
+
+page.getBackupLogs = (pageNum = 0) => {
+  const url = `api/backup/logs/${pageNum}`
+  axios.get(url).then(response => {
+    if (response.data.success === false) {
+      if (response.data.description === 'No token provided') {
+        return page.verifyToken(page.token)
+      } else {
+        return swal('An error occurred!', response.data.description, 'error')
+      }
+    }
+
+    const container = document.querySelector('#backup-logs-container')
+    if (!container) return
+
+    const logs = response.data.logs
+    const pages = response.data.pages
+    const page = response.data.page
+
+    if (logs.length === 0) {
+      container.innerHTML = '<p class="has-text-grey">No backup logs found.</p>'
+      return
+    }
+
+    let tableHtml = `
+      <table class="table is-fullwidth is-hoverable">
+        <thead>
+          <tr>
+            <th>Timestamp</th>
+            <th>Type</th>
+            <th>Status</th>
+            <th>Details</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+    `
+
+    for (const log of logs) {
+      const timestamp = new Date(log.timestamp * 1000).toLocaleString()
+      const statusClass = log.status === 'success' ? 'has-text-success' : 'has-text-danger'
+      const typeLabel = log.type.charAt(0).toUpperCase() + log.type.slice(1)
+
+      tableHtml += `
+        <tr>
+          <td>${timestamp}</td>
+          <td>${typeLabel}</td>
+          <td><span class="${statusClass}">${log.status}</span></td>
+          <td>
+            ${log.details ? `
+              ${log.details.fileCount ? `Files: ${log.details.fileCount}<br>` : ''}
+              ${log.details.totalSize ? `Size: ${page.prettifyBytes(log.details.totalSize)}<br>` : ''}
+              ${log.details.duration ? `Duration: ${(log.details.duration / 1000).toFixed(2)}s<br>` : ''}
+              ${log.details.error ? `Error: ${log.details.error}` : ''}
+            ` : '-'}
+          </td>
+          <td>
+            ${log.s3_key && log.type !== 'restore' ? `
+              <button class="button is-small is-warning is-outlined" data-action="restore-backup" data-s3-key="${log.s3_key}">
+                <span class="icon"><i class="icon-download"></i></span>
+                <span>Restore</span>
+              </button>
+            ` : '-'}
+          </td>
+        </tr>
+      `
+    }
+
+    tableHtml += `
+        </tbody>
+      </table>
+    `
+
+    if (pages > 1) {
+      tableHtml += `
+        <nav class="pagination is-small is-centered" role="navigation" aria-label="pagination">
+          <a class="pagination-previous" ${page <= 1 ? 'disabled' : ''} data-action="backup-page" data-page="${page - 1}">Previous</a>
+          <a class="pagination-next" ${page >= pages ? 'disabled' : ''} data-action="backup-page" data-page="${page + 1}">Next</a>
+          <ul class="pagination-list">
+            <li><span class="pagination-link is-current">${page}</span></li>
+            <li><span class="pagination-ellipsis">&hellip;</span></li>
+            <li><span class="pagination-link">${pages}</span></li>
+          </ul>
+        </nav>
+      `
+    }
+
+    container.innerHTML = tableHtml
+  }).catch(error => {
+    page.onAxiosError(error)
+  })
+}
+
+page.triggerBackup = () => {
+  swal({
+    title: 'Are you sure?',
+    text: 'This will backup your database and all uploaded files to S3. This may take a while.',
+    icon: 'warning',
+    dangerMode: false,
+    buttons: {
+      cancel: true,
+      confirm: { text: 'Start Backup', closeModal: false }
+    }
+  }).then(proceed => {
+    if (!proceed) return
+
+    const url = 'api/backup/trigger'
+    axios.post(url).then(response => {
+      if (response.data.success === false) {
+        if (response.data.description === 'No token provided') {
+          return page.verifyToken(page.token)
+        } else {
+          return swal('An error occurred!', response.data.description, 'error')
+        }
+      }
+
+      swal('Backup Started!', response.data.description, 'success', {
+        buttons: false,
+        timer: 2000
+      })
+
+      page.getBackupDashboard()
+    }).catch(error => {
+      page.onAxiosError(error)
+    })
+  })
+}
+
+page.restoreBackup = (s3Key) => {
+  swal({
+    title: 'Are you sure?',
+    text: 'This will restore your database and files from the selected backup. This will overwrite existing data!',
+    icon: 'warning',
+    dangerMode: true,
+    buttons: {
+      cancel: true,
+      confirm: { text: 'Restore Backup', closeModal: false }
+    }
+  }).then(proceed => {
+    if (!proceed) return
+
+    const url = 'api/backup/restore'
+    axios.post(url, { s3_key: s3Key }).then(response => {
+      if (response.data.success === false) {
+        if (response.data.description === 'No token provided') {
+          return page.verifyToken(page.token)
+        } else {
+          return swal('An error occurred!', response.data.description, 'error')
+        }
+      }
+
+      swal('Restore Started!', response.data.description, 'success', {
+        buttons: false,
+        timer: 2000
+      })
+
+      page.getBackupDashboard()
+    }).catch(error => {
+      page.onAxiosError(error)
+    })
+  })
+}
+
+page.updateBackupSchedule = () => {
+  const scheduleInput = document.querySelector('#backup-schedule')
+  if (!scheduleInput) return
+
+  const schedule = scheduleInput.value.trim()
+
+  const url = 'api/backup/schedule'
+  axios.post(url, { schedule }).then(response => {
+    if (response.data.success === false) {
+      if (response.data.description === 'No token provided') {
+        return page.verifyToken(page.token)
+      } else {
+        return swal('An error occurred!', response.data.description, 'error')
+      }
+    }
+
+    swal('Schedule Updated!', response.data.description, 'success', {
+      buttons: false,
+      timer: 1500
+    })
+
+    page.getBackupDashboard()
+  }).catch(error => {
     page.onAxiosError(error)
   })
 }

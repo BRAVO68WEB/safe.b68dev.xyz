@@ -66,3 +66,6 @@ docker-compose.config.yml
 .nvmrc
 !.gitkeep
 /public/render/*
+
+# OpenCode plans and drafts
+.omo/
