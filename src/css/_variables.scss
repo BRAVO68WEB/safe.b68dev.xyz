@@ -12,7 +12,6 @@ $blue: hsl(217deg 91% 60%);
 $red: hsl(348deg 100% 61%);
 
 /** Bulma: Variables **/
-@use 'sass:color';
 @import '../../node_modules/bulma/sass/utilities/initial-variables';
 @import '../../node_modules/bulma/sass/utilities/functions';
 @import '../../node_modules/bulma/sass/utilities/derived-variables';
@@ -23,8 +22,8 @@ $text: $white-ter;
 $strong-color: $grey-lighter;
 
 $link: $blue;
-$link-hover: color.adjust($blue, $lightness: 8%);
-$link-light: color.adjust($blue, $lightness: 8%);
+$link-hover: lighten($blue, 8%); // stylelint-disable-line scss/no-global-function-names
+$link-light: lighten($blue, 8%); // stylelint-disable-line scss/no-global-function-names
 
 $hr-background-color: $grey-dark;
 
@@ -70,7 +69,7 @@ $bg-surface-active: hsl(0deg 0% 13%);
 $border-subtle: hsl(0deg 0% 15%);
 $border-default: hsl(0deg 0% 20%);
 $accent: $blue;
-$accent-hover: color.adjust($blue, $lightness: 8%);
+$accent-hover: lighten($blue, 8%); // stylelint-disable-line scss/no-global-function-names
 $text-muted: $grey-light;
 $radius-sm: 8px;
 $radius-md: 12px;

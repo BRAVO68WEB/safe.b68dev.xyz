@@ -196,7 +196,7 @@ code,
     color: $accent;
 
     &:hover {
-      background-color: color.adjust($accent, $alpha: -0.9);
+      background-color: rgba($accent, 0.1);
       border-color: transparent;
       color: $accent-hover
     }

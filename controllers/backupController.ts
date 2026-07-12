@@ -2,7 +2,7 @@ import path = require('path')
 import fs = require('fs')
 import { S3Client, PutObjectCommand, GetObjectCommand, HeadObjectCommand } from '@aws-sdk/client-s3'
 import { Upload } from '@aws-sdk/lib-storage'
-const archiver = require('archiver')
+import { ZipArchive } from 'archiver'
 import { createReadStream, createWriteStream } from 'fs-jetpack'
 import jetpack = require('fs-jetpack')
 import utils = require('./utilsController')
@@ -37,6 +37,7 @@ interface BackupSelf {
   restoreFromS3: (s3Key: string) => Promise<void>
   restoreDatabase: (backupPath: string) => Promise<void>
   restoreFiles: (zipPath: string) => Promise<void>
+  cleanupOldBackups: () => Promise<void>
   getS3Key: (type: string) => string
   validateS3Config: () => void
 }
@@ -344,6 +345,9 @@ self.runBackup = async (type: 'manual' | 'scheduled'): Promise<any> => {
     })
 
     logger.log(`Backup completed successfully in ${details.duration}ms. Files: ${details.fileCount}, Size: ${details.totalSize} bytes`)
+
+    // Cleanup old backups (keep only 3 most recent)
+    await self.cleanupOldBackups()
   } catch (error) {
     details.error = error instanceof Error ? error.message : 'Unknown error'
     details.duration = Date.now() - startTime
@@ -363,24 +367,29 @@ self.runBackup = async (type: 'manual' | 'scheduled'): Promise<any> => {
   }
 }
 
-// Backup database using better-sqlite3's backup API
+// Backup database by copying the SQLite file
 self.backupDatabase = async (backupPath: string): Promise<void> => {
   try {
-    // Get the knex instance's database connection
-    const knex = utils.db
-    const db = knex.client.driver
-    
-    // Use better-sqlite3's backup API
-    const backup = db.backup(backupPath)
-    
-    return new Promise((resolve, reject) => {
-      backup.then(() => {
-        logger.log('Database backup completed')
-        resolve()
-      }).catch((error: any) => {
-        reject(new ServerError(`Database backup failed: ${error.message}`))
-      })
-    })
+    const dbPath = config.database.connection.filename
+
+    // Use WAL checkpoint to ensure consistent state
+    await utils.db.raw('PRAGMA wal_checkpoint(TRUNCATE)')
+
+    // Copy the database file
+    await jetpack.copyAsync(dbPath, backupPath, { overwrite: true })
+
+    // Also copy WAL and SHM files if they exist
+    const walPath = dbPath + '-wal'
+    const shmPath = dbPath + '-shm'
+
+    if (await jetpack.existsAsync(walPath)) {
+      await jetpack.copyAsync(walPath, backupPath + '-wal', { overwrite: true })
+    }
+    if (await jetpack.existsAsync(shmPath)) {
+      await jetpack.copyAsync(shmPath, backupPath + '-shm', { overwrite: true })
+    }
+
+    logger.log('Database backup completed')
   } catch (error) {
     throw new ServerError(`Database backup failed: ${error instanceof Error ? error.message : 'Unknown error'}`)
   }
@@ -390,7 +399,7 @@ self.backupDatabase = async (backupPath: string): Promise<void> => {
 self.backupFiles = async (zipPath: string): Promise<number> => {
   return new Promise((resolve, reject) => {
     const output = createWriteStream(zipPath)
-    const archive = archiver('zip', {
+    const archive = new ZipArchive({
       zlib: { level: 1 }, // Fast compression
     })
 
@@ -526,6 +535,56 @@ self.restoreDatabase = async (backupPath: string): Promise<void> => {
     logger.log('Database restored successfully')
   } catch (error) {
     throw new ServerError(`Database restore failed: ${error instanceof Error ? error.message : 'Unknown error'}`)
+  }
+}
+
+// Cleanup old backups to prevent S3 storage from filling up
+self.cleanupOldBackups = async (): Promise<void> => {
+  try {
+    const maxBackups = config.s3?.maxBackups ?? 3
+
+    // Skip cleanup if maxBackups is 0 (keep all)
+    if (maxBackups === 0) return
+
+    // Get all successful backups sorted by timestamp (newest first)
+    const backups = await utils.db.table('backup_logs')
+      .where('status', 'success')
+      .where('type', '!=', 'restore')
+      .whereNotNull('s3_key')
+      .orderBy('timestamp', 'desc')
+
+    // If we have more than maxBackups, delete the oldest ones
+    if (backups.length > maxBackups) {
+      const backupsToDelete = backups.slice(maxBackups)
+
+      for (const backup of backupsToDelete) {
+        try {
+          // Delete from S3
+          if (self.s3Client && backup.s3_key) {
+            const { DeleteObjectCommand } = require('@aws-sdk/client-s3')
+            const command = new DeleteObjectCommand({
+              Bucket: config.s3.bucket,
+              Key: backup.s3_key,
+            })
+            await self.s3Client.send(command)
+            logger.log(`Deleted old backup from S3: ${backup.s3_key}`)
+          }
+
+          // Delete from database
+          await utils.db.table('backup_logs')
+            .where('id', backup.id)
+            .del()
+
+          logger.log(`Deleted old backup log: ${backup.id}`)
+        } catch (error) {
+          logger.error(error, { prefix: `Failed to delete backup ${backup.id}: ` })
+        }
+      }
+
+      logger.log(`Cleaned up ${backupsToDelete.length} old backup(s)`)
+    }
+  } catch (error) {
+    logger.error(error, { prefix: 'Backup cleanup error: ' })
   }
 }
 

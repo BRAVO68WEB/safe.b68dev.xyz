@@ -2561,7 +2561,7 @@ page.getBackupDashboard = (params = {}) => {
                   ${status.lastBackup.details
 ? `
                     <li>Files: ${status.lastBackup.details.fileCount || 'N/A'}</li>
-                    <li>Size: ${status.lastBackup.details.totalSize ? page.prettifyBytes(status.lastBackup.details.totalSize) : 'N/A'}</li>
+                    <li>Size: ${status.lastBackup.details.totalSize ? page.getPrettyBytes(status.lastBackup.details.totalSize) : 'N/A'}</li>
                     <li>Duration: ${status.lastBackup.details.duration ? (status.lastBackup.details.duration / 1000).toFixed(2) + 's' : 'N/A'}</li>
                   `
 : ''}
@@ -2671,7 +2671,7 @@ page.getBackupLogs = (pageNum = 0) => {
             ${log.details
 ? `
               ${log.details.fileCount ? `Files: ${log.details.fileCount}<br>` : ''}
-              ${log.details.totalSize ? `Size: ${page.prettifyBytes(log.details.totalSize)}<br>` : ''}
+              ${log.details.totalSize ? `Size: ${page.getPrettyBytes(log.details.totalSize)}<br>` : ''}
               ${log.details.duration ? `Duration: ${(log.details.duration / 1000).toFixed(2)}s<br>` : ''}
               ${log.details.error ? `Error: ${log.details.error}` : ''}
             `
