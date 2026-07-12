@@ -796,6 +796,13 @@ module.exports = {
     schedule: '0 3 * * *',
 
     /*
+      Maximum number of backups to keep in S3.
+      Older backups will be automatically deleted to prevent storage from filling up.
+      Set to 0 to keep all backups (not recommended for full backups).
+    */
+    maxBackups: 3,
+
+    /*
       Enable or disable the backup system.
       When disabled, scheduled backups will not run,
       but manual backups can still be triggered from the dashboard.

@@ -37,6 +37,7 @@ interface BackupSelf {
   restoreFromS3: (s3Key: string) => Promise<void>
   restoreDatabase: (backupPath: string) => Promise<void>
   restoreFiles: (zipPath: string) => Promise<void>
+  cleanupOldBackups: () => Promise<void>
   getS3Key: (type: string) => string
   validateS3Config: () => void
 }
@@ -344,6 +345,9 @@ self.runBackup = async (type: 'manual' | 'scheduled'): Promise<any> => {
     })
 
     logger.log(`Backup completed successfully in ${details.duration}ms. Files: ${details.fileCount}, Size: ${details.totalSize} bytes`)
+
+    // Cleanup old backups (keep only 3 most recent)
+    await self.cleanupOldBackups()
   } catch (error) {
     details.error = error instanceof Error ? error.message : 'Unknown error'
     details.duration = Date.now() - startTime
@@ -531,6 +535,56 @@ self.restoreDatabase = async (backupPath: string): Promise<void> => {
     logger.log('Database restored successfully')
   } catch (error) {
     throw new ServerError(`Database restore failed: ${error instanceof Error ? error.message : 'Unknown error'}`)
+  }
+}
+
+// Cleanup old backups to prevent S3 storage from filling up
+self.cleanupOldBackups = async (): Promise<void> => {
+  try {
+    const maxBackups = config.s3?.maxBackups ?? 3
+
+    // Skip cleanup if maxBackups is 0 (keep all)
+    if (maxBackups === 0) return
+
+    // Get all successful backups sorted by timestamp (newest first)
+    const backups = await utils.db.table('backup_logs')
+      .where('status', 'success')
+      .where('type', '!=', 'restore')
+      .whereNotNull('s3_key')
+      .orderBy('timestamp', 'desc')
+
+    // If we have more than maxBackups, delete the oldest ones
+    if (backups.length > maxBackups) {
+      const backupsToDelete = backups.slice(maxBackups)
+
+      for (const backup of backupsToDelete) {
+        try {
+          // Delete from S3
+          if (self.s3Client && backup.s3_key) {
+            const { DeleteObjectCommand } = require('@aws-sdk/client-s3')
+            const command = new DeleteObjectCommand({
+              Bucket: config.s3.bucket,
+              Key: backup.s3_key,
+            })
+            await self.s3Client.send(command)
+            logger.log(`Deleted old backup from S3: ${backup.s3_key}`)
+          }
+
+          // Delete from database
+          await utils.db.table('backup_logs')
+            .where('id', backup.id)
+            .del()
+
+          logger.log(`Deleted old backup log: ${backup.id}`)
+        } catch (error) {
+          logger.error(error, { prefix: `Failed to delete backup ${backup.id}: ` })
+        }
+      }
+
+      logger.log(`Cleaned up ${backupsToDelete.length} old backup(s)`)
+    }
+  } catch (error) {
+    logger.error(error, { prefix: 'Backup cleanup error: ' })
   }
 }
 
