@@ -1,0 +1,15 @@
+[phases.setup]
+nixPkgs = ["nodejs-18_x", "pnpm-9", "python3", "gcc", "g++", "make", "git", "ffmpeg"]
+
+[phases.install]
+cmds = ["pnpm install --frozen-lockfile"]
+
+[phases.build]
+cmds = ["pnpm build"]
+
+[start]
+cmd = "pnpm migrate && npx tsx ./lolisafe.ts"
+
+[variables]
+NODE_ENV = "production"
+PORT = "9999"
