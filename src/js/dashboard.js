@@ -2757,16 +2757,25 @@ page.triggerBackup = () => {
 
 page.restoreBackup = (s3Key) => {
   swal({
-    title: 'Are you sure?',
-    text: 'This will restore your database and files from the selected backup. This will overwrite existing data!',
+    title: 'Restore Backup?',
+    text: 'This will overwrite your current database and uploaded files with the backup data. The server will need to be restarted after restore. This action cannot be undone!',
     icon: 'warning',
     dangerMode: true,
     buttons: {
-      cancel: true,
-      confirm: { text: 'Restore Backup', closeModal: false }
+      cancel: { text: 'Cancel', visible: true },
+      confirm: { text: 'Yes, Restore', closeModal: false }
     }
   }).then(proceed => {
     if (!proceed) return
+
+    swal({
+      title: 'Restoring backup...',
+      text: 'Please wait while the backup is being restored. This may take a while.',
+      icon: 'info',
+      buttons: false,
+      closeOnClickOutside: false,
+      closeOnEsc: false
+    })
 
     const url = 'api/backup/restore'
     axios.post(url, { s3_key: s3Key }).then(response => {
@@ -2774,13 +2783,17 @@ page.restoreBackup = (s3Key) => {
         if (response.data.description === 'No token provided') {
           return page.verifyToken(page.token)
         } else {
-          return swal('An error occurred!', response.data.description, 'error')
+          return swal('Restore Failed!', response.data.description, 'error')
         }
       }
 
-      swal('Restore Started!', response.data.description, 'success', {
-        buttons: false,
-        timer: 2000
+      swal({
+        title: 'Restore Complete!',
+        text: response.data.description + ' Please restart the server for changes to take effect.',
+        icon: 'success',
+        buttons: {
+          confirm: { text: 'OK' }
+        }
       })
 
       page.getBackupDashboard()

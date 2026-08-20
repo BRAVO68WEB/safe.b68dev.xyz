@@ -52,6 +52,7 @@
     "content-disposition": "~0.5.4",
     "cross-env": "~7.0.3",
     "etag": "~1.8.1",
+    "extract-zip": "^2.0.1",
     "fastq": "~1.17.1",
     "fluent-ffmpeg": "~2.1.2",
     "fresh": "~0.5.2",

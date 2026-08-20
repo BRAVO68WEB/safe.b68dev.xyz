@@ -171,7 +171,7 @@ self.restoreBackup = async (req: any, res: any): Promise<any> => {
 
     return res.json({
       success: true,
-      description: 'Backup restored successfully. The server may need to be restarted.',
+      description: 'Backup restored successfully. Database and files have been restored from backup.',
     })
   } catch (error) {
     const details: BackupDetails = {
