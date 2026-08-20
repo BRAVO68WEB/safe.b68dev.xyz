@@ -8,14 +8,20 @@
 const fs = require('fs')
 const path = require('path')
 
-const config = require('../controllers/utils/ConfigManager')
+let config
+try {
+  config = require('../controllers/utils/ConfigManager')
+} catch (e) {
+  config = require('../config')
+}
+
 const knex = require('knex')({
   client: config.database.client,
   connection: config.database.connection,
   useNullAsDefault: true
 })
 
-const uploadsDir = path.resolve(config.uploads.folder)
+const uploadsDir = path.resolve(config.uploads ? config.uploads.folder : 'uploads')
 
 const IMAGE_EXTS = ['.webp', '.jpg', '.jpeg', '.gif', '.png', '.tiff', '.tif', '.svg', '.bmp']
 const VIDEO_EXTS = ['.webm', '.mp4', '.wmv', '.avi', '.mov', '.mkv', '.m4v', '.mpeg', '.mpg']
