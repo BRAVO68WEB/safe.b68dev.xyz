@@ -238,12 +238,15 @@ self.listS3Backups = async (req: any, res: any): Promise<any> => {
 
   try {
     const { ListObjectsV2Command } = require('@aws-sdk/client-s3')
+    logger.log(`Listing S3 backups from bucket: ${config.s3.bucket}, prefix: backups/`)
     const command = new ListObjectsV2Command({
       Bucket: config.s3.bucket,
       Prefix: 'backups/',
+      MaxKeys: 100,
     })
 
     const response = await self.s3Client.send(command) as any
+    logger.log(`S3 response: ${JSON.stringify({ isTruncated: response.IsTruncated, keyCount: response.KeyCount, nextContinuationToken: response.NextContinuationToken })}`)
 
     if (!response.Contents || response.Contents.length === 0) {
       return res.json({
