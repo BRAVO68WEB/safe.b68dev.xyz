@@ -7,13 +7,12 @@
 
 const fs = require('fs')
 const path = require('path')
-const crypto = require('crypto')
 
 const config = require('../controllers/utils/ConfigManager')
 const knex = require('knex')({
   client: config.database.client,
   connection: config.database.connection,
-  useNullAsDefault: true,
+  useNullAsDefault: true
 })
 
 const uploadsDir = path.resolve(config.uploads.folder)
@@ -22,19 +21,15 @@ const IMAGE_EXTS = ['.webp', '.jpg', '.jpeg', '.gif', '.png', '.tiff', '.tif', '
 const VIDEO_EXTS = ['.webm', '.mp4', '.wmv', '.avi', '.mov', '.mkv', '.m4v', '.mpeg', '.mpg']
 const AUDIO_EXTS = ['.mp3', '.flac', '.ogg', '.m4a', '.aac', '.wav', '.wma']
 
-function getFileType(extname) {
-  extname = extname.toLowerCase()
-  if (IMAGE_EXTS.includes(extname)) return 'image'
-  if (VIDEO_EXTS.includes(extname)) return 'video'
-  if (AUDIO_EXTS.includes(extname)) return 'audio'
+function getFileType (ext) {
+  ext = ext.toLowerCase()
+  if (IMAGE_EXTS.includes(ext)) return 'image'
+  if (VIDEO_EXTS.includes(ext)) return 'video'
+  if (AUDIO_EXTS.includes(ext)) return 'audio'
   return 'binary'
 }
 
-function generateIdentifier() {
-  return crypto.randomBytes(4).toString('hex')
-}
-
-async function addFilesToDatabase() {
+async function addFilesToDatabase () {
   console.log(`Scanning uploads directory: ${uploadsDir}`)
 
   if (!fs.existsSync(uploadsDir)) {
@@ -67,20 +62,19 @@ async function addFilesToDatabase() {
 
     const filePath = path.join(uploadsDir, filename)
     const stats = fs.statSync(filePath)
-    const extname = path.extname(filename)
-    const identifier = path.basename(filename, extname)
+    const ext = path.extname(filename)
 
     await knex('files').insert({
       userid: 1,
       name: filename,
       original: filename,
-      type: getFileType(extname),
+      type: getFileType(ext),
       size: String(stats.size),
       hash: '',
       ip: '127.0.0.1',
       albumid: null,
       timestamp: Math.floor(stats.mtime.getTime() / 1000),
-      expirydate: null,
+      expirydate: null
     })
 
     added++
@@ -89,7 +83,7 @@ async function addFilesToDatabase() {
     }
   }
 
-  console.log(`\nDone!`)
+  console.log('\nDone!')
   console.log(`  Added: ${added} files`)
   console.log(`  Skipped: ${skipped} files (already in database)`)
   console.log(`  Total: ${files.length} files`)
