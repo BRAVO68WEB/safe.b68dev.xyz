@@ -416,6 +416,8 @@ page.domClick = event => {
       return page.updateBackupSchedule()
     case 'backup-page':
       return page.getBackupLogs(parseInt(element.dataset.page))
+    case 'list-s3-backups':
+      return page.listS3Backups()
     // Manage your token
     case 'get-new-token':
       return page.getNewToken(element)
@@ -2580,6 +2582,10 @@ page.getBackupDashboard = (params = {}) => {
                 <span class="icon"><i class="icon-upload-cloud"></i></span>
                 <span>Backup Now</span>
               </button>
+              <button class="button is-warning is-fullwidth" data-action="list-s3-backups" ${!status.s3Configured ? 'disabled' : ''}>
+                <span class="icon"><i class="icon-download-cloud"></i></span>
+                <span>Restore from S3</span>
+              </button>
             </div>
 
             <div class="field">
@@ -2825,6 +2831,74 @@ page.updateBackupSchedule = () => {
     })
 
     page.getBackupDashboard()
+  }).catch(error => {
+    page.onAxiosError(error)
+  })
+}
+
+page.listS3Backups = () => {
+  swal({
+    title: 'Loading S3 backups...',
+    text: 'Please wait while we fetch backups from S3.',
+    icon: 'info',
+    buttons: false,
+    closeOnClickOutside: false,
+    closeOnEsc: false
+  })
+
+  const url = 'api/backup/s3-list'
+  axios.get(url).then(response => {
+    if (response.data.success === false) {
+      if (response.data.description === 'No token provided') {
+        return page.verifyToken(page.token)
+      } else {
+        return swal('An error occurred!', response.data.description, 'error')
+      }
+    }
+
+    const backups = response.data.backups
+    if (backups.length === 0) {
+      return swal('No Backups Found', 'No backups found in S3 bucket.', 'warning')
+    }
+
+    const div = document.createElement('div')
+    div.innerHTML = `
+      <p class="has-text-left" style="margin-bottom: 1rem;">Select a backup to restore:</p>
+      <div style="max-height: 300px; overflow-y: auto;">
+        ${backups.map((backup, index) => `
+          <div class="box" style="margin-bottom: 0.5rem; padding: 0.75rem;">
+            <div class="columns is-vcentered">
+              <div class="column">
+                <p class="has-text-weight-semibold">${backup.key.split('/').pop()}</p>
+                <p class="is-size-7 has-text-grey">${new Date(backup.lastModified).toLocaleString()} - ${page.getPrettyBytes(backup.size)}</p>
+              </div>
+              <div class="column is-narrow">
+                <button class="button is-small is-warning is-outlined" data-action="restore-s3-backup" data-s3-key="${backup.key}">
+                  <span class="icon"><i class="icon-download"></i></span>
+                  <span>Restore</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    `
+
+    swal({
+      title: 'S3 Backups',
+      content: div,
+      buttons: {
+        cancel: { text: 'Close', visible: true }
+      }
+    })
+
+    div.addEventListener('click', (event) => {
+      const button = event.target.closest('[data-action="restore-s3-backup"]')
+      if (button) {
+        swal.close()
+        page.restoreBackup(button.dataset.s3Key)
+      }
+    })
   }).catch(error => {
     page.onAxiosError(error)
   })

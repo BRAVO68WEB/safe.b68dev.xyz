@@ -38,6 +38,7 @@ interface BackupSelf {
   restoreDatabase: (backupPath: string) => Promise<void>
   restoreFiles: (zipPath: string) => Promise<void>
   cleanupOldBackups: () => Promise<void>
+  listS3Backups: (req: any, res: any) => Promise<any>
   getS3Key: (type: string) => string
   validateS3Config: () => void
 }
@@ -223,6 +224,44 @@ self.getBackupLogs = async (req: any, res: any): Promise<any> => {
     page,
     pages: Math.ceil(count / logsPerPage),
   })
+}
+
+// List backups directly from S3 (for restoring after reinstall)
+self.listS3Backups = async (req: any, res: any): Promise<any> => {
+  const isadmin = perms.is(req.locals.user, 'admin')
+  if (!isadmin) {
+    throw new ClientError('Only administrators can list S3 backups.', { statusCode: 403 })
+  }
+
+  if (!self.s3Client) {
+    throw new ClientError('S3 backup is not configured.', { statusCode: 400 })
+  }
+
+  try {
+    const { ListObjectsV2Command } = require('@aws-sdk/client-s3')
+    const command = new ListObjectsV2Command({
+      Bucket: config.s3.bucket,
+      Prefix: 'backups/',
+    })
+
+    const response = await self.s3Client.send(command) as any
+    const backups = (response.Contents || [])
+      .filter((obj: any) => obj.Key?.endsWith('.zip'))
+      .map((obj: any) => ({
+        key: obj.Key,
+        size: obj.Size,
+        lastModified: obj.LastModified,
+        timestamp: Math.floor(new Date(obj.LastModified).getTime() / 1000),
+      }))
+      .sort((a: any, b: any) => b.timestamp - a.timestamp)
+
+    return res.json({
+      success: true,
+      backups,
+    })
+  } catch (error) {
+    throw new ServerError(`Failed to list S3 backups: ${error instanceof Error ? error.message : 'Unknown error'}`)
+  }
 }
 
 // Get backup status

@@ -135,6 +135,7 @@ routes.post("/backup/restore", [auth.requireUser, utils.assertJSON], backup.rest
 routes.get("/backup/logs", auth.requireUser, backup.getBackupLogs);
 routes.get("/backup/logs/:page", auth.requireUser, backup.getBackupLogs);
 routes.get("/backup/status", auth.requireUser, backup.getBackupStatus);
+routes.get("/backup/s3-list", auth.requireUser, backup.listS3Backups);
 routes.post("/backup/schedule", [auth.requireUser, utils.assertJSON], backup.updateSchedule);
 
 export = routes;
