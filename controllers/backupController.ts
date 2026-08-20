@@ -32,7 +32,6 @@ interface BackupSelf {
   updateSchedule: (req: any, res: any) => Promise<any>
   runBackup: (type: 'manual' | 'scheduled') => Promise<any>
   backupDatabase: (backupPath: string) => Promise<void>
-  backupFiles: (zipPath: string) => Promise<number>
   uploadToS3: (filePath: string, s3Key: string) => Promise<void>
   restoreFromS3: (s3Key: string) => Promise<void>
   restoreDatabase: (backupPath: string) => Promise<void>
@@ -41,6 +40,7 @@ interface BackupSelf {
   listS3Backups: (req: any, res: any) => Promise<any>
   getS3Key: (type: string) => string
   validateS3Config: () => void
+  backupFiles: (zipPath: string, dbBackupPath?: string) => Promise<number>
 }
 
 const self: BackupSelf = {
@@ -372,9 +372,9 @@ self.runBackup = async (type: 'manual' | 'scheduled'): Promise<any> => {
     logger.log('Backing up database...')
     await self.backupDatabase(dbBackupPath)
 
-    // Backup files
-    logger.log('Backing up files...')
-    details.fileCount = await self.backupFiles(zipPath)
+    // Backup files (including database in the zip)
+    logger.log('Backing up files and database...')
+    details.fileCount = await self.backupFiles(zipPath, dbBackupPath)
 
     // Get zip size
     const zipStats = await jetpack.inspectAsync(zipPath)
@@ -450,12 +450,11 @@ self.backupDatabase = async (backupPath: string): Promise<void> => {
   }
 }
 
-// Backup files by zipping uploads folder
-self.backupFiles = async (zipPath: string): Promise<number> => {
+self.backupFiles = async (zipPath: string, dbBackupPath?: string): Promise<number> => {
   return new Promise((resolve, reject) => {
     const output = createWriteStream(zipPath)
     const archive = new ZipArchive({
-      zlib: { level: 1 }, // Fast compression
+      zlib: { level: 1 },
     })
 
     let fileCount = 0
@@ -475,7 +474,12 @@ self.backupFiles = async (zipPath: string): Promise<number> => {
 
     archive.pipe(output)
 
-    // Add uploads folder (excluding .backup-temp and thumbs)
+    if (dbBackupPath && jetpack.exists(dbBackupPath)) {
+      archive.file(dbBackupPath, { name: 'db.sqlite3' })
+      fileCount++
+      logger.log('Added database to backup archive')
+    }
+
     archive.glob('**/*', {
       cwd: paths.uploads,
       ignore: ['.backup-temp/**', 'thumbs/**', 'chunks/**', 'zips/**'],
