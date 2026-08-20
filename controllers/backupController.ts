@@ -226,7 +226,6 @@ self.getBackupLogs = async (req: any, res: any): Promise<any> => {
   })
 }
 
-// List backups directly from S3 (for restoring after reinstall)
 self.listS3Backups = async (req: any, res: any): Promise<any> => {
   const isadmin = perms.is(req.locals.user, 'admin')
   if (!isadmin) {
@@ -245,7 +244,15 @@ self.listS3Backups = async (req: any, res: any): Promise<any> => {
     })
 
     const response = await self.s3Client.send(command) as any
-    const backups = (response.Contents || [])
+
+    if (!response.Contents || response.Contents.length === 0) {
+      return res.json({
+        success: true,
+        backups: [],
+      })
+    }
+
+    const backups = response.Contents
       .filter((obj: any) => obj.Key?.endsWith('.zip'))
       .map((obj: any) => ({
         key: obj.Key,
@@ -259,8 +266,14 @@ self.listS3Backups = async (req: any, res: any): Promise<any> => {
       success: true,
       backups,
     })
-  } catch (error) {
-    throw new ServerError(`Failed to list S3 backups: ${error instanceof Error ? error.message : 'Unknown error'}`)
+  } catch (error: any) {
+    if (error.name === 'NoSuchBucket') {
+      throw new ClientError('S3 bucket does not exist. Please check your configuration.', { statusCode: 400 })
+    }
+    if (error.name === 'AccessDenied') {
+      throw new ClientError('Access denied to S3 bucket. Please check your credentials and permissions.', { statusCode: 403 })
+    }
+    throw new ServerError(`Failed to list S3 backups: ${error.message || 'Unknown error'}`)
   }
 }
 
