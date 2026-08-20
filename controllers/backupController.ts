@@ -646,18 +646,20 @@ self.cleanupOldBackups = async (): Promise<void> => {
 // Restore files from backup
 self.restoreFiles = async (extractDir: string): Promise<void> => {
   try {
-    // Find the uploads folder in the extracted backup
     const uploadsBackupDir = path.join(extractDir, 'uploads')
-    
+
     if (await jetpack.existsAsync(uploadsBackupDir)) {
-      // Copy files from backup to uploads folder
       await jetpack.copyAsync(uploadsBackupDir, paths.uploads, {
         overwrite: true,
         matching: '!{.backup-temp,thumbs,chunks,zips}/**',
       })
-      logger.log('Files restored successfully')
+      logger.log('Files restored successfully from uploads/ subdirectory')
     } else {
-      logger.log('No uploads folder found in backup')
+      await jetpack.copyAsync(extractDir, paths.uploads, {
+        overwrite: true,
+        matching: '!{.backup-temp,thumbs,chunks,zips,db.sqlite3,db.sqlite3-wal,db.sqlite3-shm}/**',
+      })
+      logger.log('Files restored successfully from backup root')
     }
   } catch (error) {
     throw new ServerError(`Files restore failed: ${error instanceof Error ? error.message : 'Unknown error'}`)
